@@ -6,9 +6,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/morhekil/gochallenge/api"
-	"github.com/morhekil/gochallenge/mock"
-	"github.com/morhekil/gochallenge/model"
+	"github.com/gochallenge/gochallenge/api"
+	"github.com/gochallenge/gochallenge/mock"
+	"github.com/gochallenge/gochallenge/model"
 	"github.com/stretchr/testify/require"
 )
 

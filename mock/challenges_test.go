@@ -3,8 +3,8 @@ package mock_test
 import (
 	"testing"
 
-	"github.com/morhekil/gochallenge/mock"
-	"github.com/morhekil/gochallenge/model"
+	"github.com/gochallenge/gochallenge/mock"
+	"github.com/gochallenge/gochallenge/model"
 	"github.com/stretchr/testify/require"
 )
 

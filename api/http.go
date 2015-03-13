@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
-	"github.com/morhekil/gochallenge/model"
 	"github.com/morhekil/mw"
 )
 

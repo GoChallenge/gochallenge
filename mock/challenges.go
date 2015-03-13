@@ -3,7 +3,7 @@ package mock
 import (
 	"errors"
 
-	"github.com/morhekil/gochallenge/model"
+	"github.com/gochallenge/gochallenge/model"
 )
 
 // CurrentID is an ID of a challenge that mock considers to be

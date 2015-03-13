@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/morhekil/gochallenge/api"
-	"github.com/morhekil/gochallenge/mock"
-	"github.com/morhekil/gochallenge/model"
+	"github.com/gochallenge/gochallenge/api"
+	"github.com/gochallenge/gochallenge/mock"
+	"github.com/gochallenge/gochallenge/model"
 )
 
 func main() {
