@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
@@ -57,14 +58,15 @@ func (a *app) getChallenge(w http.ResponseWriter,
 	var (
 		c   model.Challenge
 		err error
+		cid int
 		js  []byte
 	)
 
 	id := ps.ByName("id")
 	if id == "current" {
 		c, err = a.cfg.Challenges.Current()
-	} else {
-		c, err = a.cfg.Challenges.Find(id)
+	} else if cid, err = strconv.Atoi(id); err == nil {
+		c, err = a.cfg.Challenges.Find(cid)
 	}
 
 	if err == nil {

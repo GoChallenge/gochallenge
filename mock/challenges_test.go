@@ -11,7 +11,7 @@ import (
 func TestChallengeMockRepo(t *testing.T) {
 	cs := mock.Challenges{}
 	c1 := model.Challenge{
-		ID: "First",
+		ID: 123,
 	}
 	cs.Add(c1)
 

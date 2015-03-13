@@ -8,10 +8,10 @@ import (
 
 // CurrentID is an ID of a challenge that mock considers to be
 // the current one
-const CurrentID = "0"
+const CurrentID = 0
 
 // Challenges repository, mocked out as in-memory map
-type Challenges map[string]model.Challenge
+type Challenges map[int]model.Challenge
 
 // Add another challenge to the mock repo
 func (cs Challenges) Add(c model.Challenge) {
@@ -19,7 +19,7 @@ func (cs Challenges) Add(c model.Challenge) {
 }
 
 // Find a challenge in the repository by its id
-func (cs Challenges) Find(id string) (model.Challenge, error) {
+func (cs Challenges) Find(id int) (model.Challenge, error) {
 	var (
 		c   model.Challenge
 		ok  bool
