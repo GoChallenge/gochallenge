@@ -18,5 +18,6 @@ type Challenge struct {
 	Author Author    `json:"author"`
 	URL    string    `json:"url"`
 	Import string    `json:"import"`
+	Git    string    `json:"-"`
 	Status Lifecycle `json:"status"`
 }
