@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gochallenge/gochallenge/api/challenges"
+	"github.com/gochallenge/gochallenge/api/submissions"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
@@ -20,6 +21,8 @@ func server(cfg Config) *httprouter.Router {
 	r := httprouter.New()
 	r.GET("/v1/challenges", challenges.List(cfg.Challenges))
 	r.GET("/v1/challenges/:id", challenges.Get(cfg.Challenges))
+	r.POST("/v1/challenges/:id/submissions",
+		submissions.Post(cfg.Challenges, cfg.Submissions))
 	r.GET("/code/:id", challenges.Get(cfg.Challenges))
 
 	return r
