@@ -70,7 +70,7 @@ func TestGoGetChallenge(t *testing.T) {
 		Import: "gochallenge.org/gochallenge-x",
 		Git:    "https://github.com/author/challengex",
 	}
-	path := "/v1/challenge/current?go-get=1"
+	path := fmt.Sprintf("/code/challenge-%03d?go-get=1", mock.CurrentID)
 
 	body := getBody(t, path, c0)
 

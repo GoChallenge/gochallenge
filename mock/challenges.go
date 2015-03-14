@@ -8,7 +8,7 @@ import (
 
 // CurrentID is an ID of a challenge that mock considers to be
 // the current one
-const CurrentID = 0
+const CurrentID = 1
 
 // Challenges repository, mocked out as in-memory map
 type Challenges map[int]model.Challenge

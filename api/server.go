@@ -22,6 +22,7 @@ type app struct {
 func (a *app) server() *httprouter.Router {
 	r := httprouter.New()
 	r.GET("/v1/challenge/:id", a.getChallenge)
+	r.GET("/code/:id", a.getChallenge)
 
 	return r
 }

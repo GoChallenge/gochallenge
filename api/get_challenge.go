@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
@@ -37,9 +38,11 @@ func (a *app) getChallenge(w http.ResponseWriter,
 }
 
 func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
-	if id == "current" {
+	idx := strings.Replace(id, "challenge-", "", 1)
+
+	if idx == "current" {
 		return cs.Current()
-	} else if cid, err := strconv.Atoi(id); err == nil {
+	} else if cid, err := strconv.Atoi(idx); err == nil {
 		return cs.Find(cid)
 	} else {
 		return model.Challenge{}, err
