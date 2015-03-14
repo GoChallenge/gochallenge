@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gochallenge/gochallenge/api"
 	"github.com/gochallenge/gochallenge/mock"
@@ -47,6 +48,8 @@ func TestGetChallenge(t *testing.T) {
 		ID:     123,
 		Name:   "The Challenge",
 		Status: model.Open,
+		Start:  time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
+		End:    time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
 	}
 	path := fmt.Sprintf("/v1/challenges/%d", c0.ID)
 
@@ -55,8 +58,10 @@ func TestGetChallenge(t *testing.T) {
 
 func TestGetCurrentChallenge(t *testing.T) {
 	c0 := model.Challenge{
-		ID:   mock.CurrentID,
-		Name: "The Current Challenge",
+		ID:    mock.CurrentID,
+		Name:  "The Current Challenge",
+		Start: time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
+		End:   time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
 	}
 	path := "/v1/challenges/current"
 

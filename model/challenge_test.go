@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/stretchr/testify/require"
@@ -15,6 +16,8 @@ func TestChallengeMarshal(t *testing.T) {
 		Name:   "The Challenge",
 		Import: "http://github.com/gochallenge",
 		Status: model.Open,
+		Start:  time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
+		End:    time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
 	}
 	s := strings.Replace(`
 {
@@ -23,7 +26,9 @@ func TestChallengeMarshal(t *testing.T) {
 "author":{"name":""},
 "url":"",
 "import":"http://github.com/gochallenge",
-"status":"open"
+"status":"open",
+"start":"2015-03-01T00:00:00Z",
+"end":"2015-03-14T00:00:00Z"
 }
 `, "\n", "", -1)
 

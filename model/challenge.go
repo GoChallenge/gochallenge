@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 // Challenges repository interface
 type Challenges interface {
 	Find(int) (Challenge, error)
@@ -20,4 +22,6 @@ type Challenge struct {
 	Import string    `json:"import"`
 	Git    string    `json:"-"`
 	Status Lifecycle `json:"status"`
+	Start  time.Time `json:"start"`
+	End    time.Time `json:"end"`
 }
