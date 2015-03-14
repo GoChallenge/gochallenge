@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/gochallenge/gochallenge/api/challenges"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
 	"github.com/justinas/alice"
@@ -15,14 +16,10 @@ type Config struct {
 	Submissions model.Submissions
 }
 
-type app struct {
-	cfg Config
-}
-
-func (a *app) server() *httprouter.Router {
+func server(cfg Config) *httprouter.Router {
 	r := httprouter.New()
-	r.GET("/v1/challenge/:id", a.getChallenge)
-	r.GET("/code/:id", a.getChallenge)
+	r.GET("/v1/challenges/:id", challenges.Get(cfg.Challenges))
+	r.GET("/code/:id", challenges.Get(cfg.Challenges))
 
 	return r
 }
@@ -32,11 +29,10 @@ func New(cfg Config) http.Handler {
 	hs := map[string]string{
 		"Content-Type": "application/json; charset=utf-8",
 	}
-	a := app{cfg}
 
 	return alice.New(
 		mw.Recover,
 		mw.Logger,
 		mw.Headers(hs),
-	).Then(a.server())
+	).Then(server(cfg))
 }

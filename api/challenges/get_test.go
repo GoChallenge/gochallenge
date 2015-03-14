@@ -1,4 +1,4 @@
-package api_test
+package challenges_test
 
 import (
 	"encoding/json"
@@ -48,7 +48,7 @@ func TestGetChallenge(t *testing.T) {
 		Name:   "The Challenge",
 		Status: model.Open,
 	}
-	path := fmt.Sprintf("/v1/challenge/%d", c0.ID)
+	path := fmt.Sprintf("/v1/challenges/%d", c0.ID)
 
 	testGettingChallenge(t, path, c0)
 }
@@ -58,7 +58,7 @@ func TestGetCurrentChallenge(t *testing.T) {
 		ID:   mock.CurrentID,
 		Name: "The Current Challenge",
 	}
-	path := "/v1/challenge/current"
+	path := "/v1/challenges/current"
 
 	testGettingChallenge(t, path, c0)
 }
