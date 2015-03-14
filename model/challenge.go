@@ -6,6 +6,7 @@ import "time"
 type Challenges interface {
 	Find(int) (Challenge, error)
 	Current() (Challenge, error)
+	All() ([]Challenge, error)
 }
 
 // Author of a challenge

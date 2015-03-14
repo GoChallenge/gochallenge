@@ -18,6 +18,7 @@ type Config struct {
 
 func server(cfg Config) *httprouter.Router {
 	r := httprouter.New()
+	r.GET("/v1/challenges", challenges.List(cfg.Challenges))
 	r.GET("/v1/challenges/:id", challenges.Get(cfg.Challenges))
 	r.GET("/code/:id", challenges.Get(cfg.Challenges))
 

@@ -9,7 +9,7 @@ import (
 )
 
 func TestChallengeMockRepo(t *testing.T) {
-	cs := mock.Challenges{}
+	cs := mock.NewChallenges()
 	c1 := model.Challenge{
 		ID: 123,
 	}
@@ -33,4 +33,10 @@ func TestChallengeMockRepo(t *testing.T) {
 	c, err = cs.Find(c0.ID)
 	require.NoError(t, err, "current challenge lookup should not error")
 	require.Equal(t, c, c0, "current challenge should be returned")
+
+	// All should return all added challenges
+	cx, err := cs.All()
+	require.NoError(t, err, "all challenges returned an error")
+	require.Equal(t, []model.Challenge{c1, c0}, cx,
+		"all challenges not returned correctly")
 }

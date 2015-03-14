@@ -16,7 +16,7 @@ import (
 )
 
 func getBody(t *testing.T, path string, c0 model.Challenge) []byte {
-	cs := mock.Challenges{}
+	cs := mock.NewChallenges()
 	a := api.New(api.Config{
 		Challenges: cs,
 	})
