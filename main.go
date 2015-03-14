@@ -40,7 +40,7 @@ func main() {
 	})
 
 	a := api.New(api.Config{
-		Challenges: cs,
+		Challenges: &cs,
 	})
 	log.Fatal(http.ListenAndServe(":8081", a))
 }

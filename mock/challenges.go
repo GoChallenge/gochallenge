@@ -31,7 +31,7 @@ func (cs *Challenges) Add(c model.Challenge) {
 }
 
 // Find a challenge in the repository by its id
-func (cs Challenges) Find(id int) (model.Challenge, error) {
+func (cs *Challenges) Find(id int) (model.Challenge, error) {
 	var (
 		c  *model.Challenge
 		ok bool
@@ -46,11 +46,11 @@ func (cs Challenges) Find(id int) (model.Challenge, error) {
 }
 
 // All challenges currently available
-func (cs Challenges) All() ([]model.Challenge, error) {
+func (cs *Challenges) All() ([]model.Challenge, error) {
 	return cs.ary, nil
 }
 
 // Current challenge, mocked to return challenge with ID "0"
-func (cs Challenges) Current() (model.Challenge, error) {
+func (cs *Challenges) Current() (model.Challenge, error) {
 	return cs.Find(CurrentID)
 }

@@ -17,6 +17,10 @@ import (
 
 func TestList(t *testing.T) {
 	cs := mock.NewChallenges()
+	a := api.New(api.Config{
+		Challenges: &cs,
+	})
+	ts := httptest.NewServer(a)
 
 	c0 := model.Challenge{
 		ID:     123,
@@ -35,11 +39,6 @@ func TestList(t *testing.T) {
 		End:    time.Date(2015, 4, 14, 0, 0, 0, 0, time.UTC),
 	}
 	cs.Add(c1)
-
-	a := api.New(api.Config{
-		Challenges: cs,
-	})
-	ts := httptest.NewServer(a)
 
 	res, err := http.Get(ts.URL + "/v1/challenges")
 	defer res.Body.Close()
