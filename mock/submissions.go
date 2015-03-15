@@ -40,6 +40,8 @@ func (ss *Submissions) All() ([]*model.Submission, error) {
 // AllForChallenge return submissions received for the given challenge
 func (ss *Submissions) AllForChallenge(c *model.Challenge) ([]*model.Submission, error) {
 	var sx []*model.Submission
+	sx = make([]*model.Submission, 0)
+
 	for _, s := range ss.ary {
 		if s.Challenge.ID == c.ID {
 			sx = append(sx, s)

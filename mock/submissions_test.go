@@ -32,6 +32,14 @@ func TestSubmissionsAllForChallenge(t *testing.T) {
 		ID: 1,
 	}
 	ss := mock.NewSubmissions()
+
+	// AllForChallenge should return empty array when there're
+	// no submissions for a challenge
+	sx, err := ss.AllForChallenge(c0)
+	require.NoError(t, err, "all for challenge returned an error")
+	require.Equal(t, []*model.Submission{}, sx,
+		"empty submissions not returned correctly")
+
 	s0 := &model.Submission{
 		ID:        "1",
 		Challenge: c0,
@@ -49,7 +57,7 @@ func TestSubmissionsAllForChallenge(t *testing.T) {
 
 	// AllForChallenge should return all submissions for a given
 	// challenge only
-	sx, err := ss.AllForChallenge(c0)
+	sx, err = ss.AllForChallenge(c0)
 	require.NoError(t, err, "all for challenge returned an error")
 	require.Equal(t, []*model.Submission{s0}, sx,
 		"all submissions not returned correctly")

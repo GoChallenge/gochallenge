@@ -63,3 +63,37 @@ func TestList(t *testing.T) {
 	require.Equal(t, []model.Submission{s0, s1}, sx,
 		"GET /v1/.../submissions unmarshalled incorrectly")
 }
+
+func TestListEmpty(t *testing.T) {
+	cs := mock.NewChallenges()
+	ss := mock.NewSubmissions()
+	a := api.New(api.Config{
+		Challenges:  &cs,
+		Submissions: &ss,
+	})
+	ts := httptest.NewServer(a)
+
+	c0 := model.Challenge{
+		ID:     123,
+		Name:   "The Challenge",
+		Status: model.Open,
+		Start:  time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
+		End:    time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
+	}
+	cs.Add(c0)
+
+	path := fmt.Sprintf("/v1/challenges/%d/submissions", c0.ID)
+	res, err := http.Get(ts.URL + path)
+	defer res.Body.Close()
+
+	require.NoError(t, err, "GET /v1/.../submissions should not error")
+	require.Equal(t, "200 OK", res.Status,
+		fmt.Sprintf("GET /v1/.../submissions error code %s", res.Status))
+
+	b, err := ioutil.ReadAll(res.Body)
+	require.NoError(t, err, "GET /v1/.../submissions should read the body")
+
+	require.NoError(t, err, "GET /v1/.../submissions unmarshaling failed")
+	require.Equal(t, "[]", string(b),
+		"GET /v1/.../submissions unmarshalled incorrectly")
+}

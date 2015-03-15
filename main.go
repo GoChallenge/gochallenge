@@ -39,8 +39,10 @@ func main() {
 		End:   time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
 	})
 
+	ss := mock.NewSubmissions()
 	a := api.New(api.Config{
-		Challenges: &cs,
+		Challenges:  &cs,
+		Submissions: &ss,
 	})
 	log.Fatal(http.ListenAndServe(":8081", a))
 }
