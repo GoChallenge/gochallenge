@@ -76,7 +76,9 @@ dC50eHRVVAUAA0rpBFV1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEAAQBOAAAARwAAAAAA
 	require.NoError(t, err, "POST /v1/.../submissions unmarshaling failed")
 	require.Equal(t, "2", sx.ID,
 		"GET /v1/.../submission unmarshalled incorrectly")
-	testSubmissionData(t, &sx, map[string]string{
+
+	sl, err := ss.Find(sx.ID)
+	testSubmissionData(t, sl, map[string]string{
 		"test.txt": "test\x0a",
 	})
 }

@@ -28,8 +28,13 @@ func (ss *Submissions) Add(s *model.Submission) error {
 }
 
 // Find a challenge in the repository by its id
-func (ss *Submissions) Find(id int) (model.Submission, error) {
-	return model.Submission{}, errors.New("Not implemented")
+func (ss *Submissions) Find(id string) (*model.Submission, error) {
+	for _, s := range ss.ary {
+		if s.ID == id {
+			return s, nil
+		}
+	}
+	return nil, errors.New("Not implemented")
 }
 
 // All submissions received

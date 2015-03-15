@@ -42,14 +42,6 @@ func readSubmission(s *model.Submission, r *http.Request) error {
 		return err
 	}
 
-	// b, err = ioutil.ReadAll(r.Body)
-	// fmt.Printf("CT: %s\nBODY: %s\n", bnd, b)
-
-	// err = json.Unmarshal(b, &s)
-	// s.ChallengeID = c.ID
-	// s.Challenge = &c
-	// ss.Add(&s)
-
 	mr := multipart.NewReader(r.Body, bnd)
 	for p, err = mr.NextPart(); err == nil; p, err = mr.NextPart() {
 		mt, _, err := mime.ParseMediaType(p.Header.Get("Content-Type"))
@@ -98,6 +90,7 @@ func parseZip(s *model.Submission, p *multipart.Part) error {
 		return err
 	}
 	s.Data = b
+
 	return nil
 }
 

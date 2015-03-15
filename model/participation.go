@@ -7,7 +7,7 @@ type Participation int
 
 // Possible levels of challenge participation
 const (
-	LvlNormal = iota
+	LvlNormal Participation = iota
 	LvlBonus
 	LvlFun
 	LvlAnonymous
