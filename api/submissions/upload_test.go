@@ -1,6 +1,8 @@
 package submissions_test
 
 import (
+	"archive/zip"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -37,8 +39,25 @@ func TestPostMultipart(t *testing.T) {
 	ts := httptest.NewServer(a)
 
 	path := fmt.Sprintf("/v1/challenges/%d/submissions", c0.ID)
-	buf := strings.NewReader("{}")
+	bnd := "c0ffee"
+
+	// the data here is a zipped file "test.txt", containing word "test"
+	data := fmt.Sprintf(`--%[1]s
+Content-Type: application/json; charset=UTF-8
+
+{"type":"normal"}
+--%[1]s
+Content-Type: application/zip
+Content-Transfer-Encoding: base64
+
+UEsDBAoAAAAAAONob0bGNbk7BQAAAAUAAAAIABwAdGVzdC50eHRVVAkAA0rpBFVO6QRVdXgLAAEE9QEA
+AAQUAAAAdGVzdApQSwECHgMKAAAAAADjaG9GxjW5OwUAAAAFAAAACAAYAAAAAAABAAAApIEAAAAAdGVz
+dC50eHRVVAUAA0rpBFV1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEAAQBOAAAARwAAAAAA
+--%[1]s--
+`, bnd)
+	buf := strings.NewReader(data)
 	req, err := http.NewRequest("POST", ts.URL+path, buf)
+	req.Header.Add("Content-Type", "multipart/related; boundary="+bnd)
 
 	hc := &http.Client{}
 	res, err := hc.Do(req)
@@ -56,5 +75,30 @@ func TestPostMultipart(t *testing.T) {
 	err = json.Unmarshal(b, &sx)
 	require.NoError(t, err, "POST /v1/.../submissions unmarshaling failed")
 	require.Equal(t, 2, sx.ID,
-		"GET /v1/.../submissions unmarshalled incorrectly")
+		"GET /v1/.../submission unmarshalled incorrectly")
+	testSubmissionData(t, &sx, map[string]string{
+		"test.txt": "test\x0a",
+	})
+}
+
+func testSubmissionData(t *testing.T, sx *model.Submission, ex map[string]string) {
+	var b []byte
+
+	// Test that the data can be unzipped
+	z, err := zip.NewReader(bytes.NewReader(sx.Data), int64(len(sx.Data)))
+	require.NoError(t, err, "zip reader init failed")
+	files := map[string]string{}
+
+	// Load all files into a map
+	for _, f := range z.File {
+		zf, err := f.Open()
+		if err == nil {
+			b, err = ioutil.ReadAll(zf)
+			files[f.Name] = string(b)
+		}
+		require.NoError(t, err, "reading files from zip data failed")
+	}
+
+	// And verify that the map is the same as the expected one
+	require.Equal(t, ex, files, "GET /v1/.../submission data not loaded")
 }

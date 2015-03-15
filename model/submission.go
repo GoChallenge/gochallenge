@@ -15,8 +15,10 @@ type User struct {
 // Submission type describes details of a submitted solutions for a
 // challenge
 type Submission struct {
-	ID          int  `json:"id"`
-	User        User `json:"user"`
-	ChallengeID int  `json:"challenge_id"`
+	ID          int           `json:"id"`
+	User        User          `json:"user"`
+	ChallengeID int           `json:"challenge_id"`
+	Type        Participation `json:"type"`
 	Challenge   *Challenge
+	Data        []byte
 }
