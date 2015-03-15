@@ -28,7 +28,7 @@ func TestPostMultipart(t *testing.T) {
 	cs.Add(c0)
 
 	s0 := model.Submission{
-		ID: 1,
+		ID: "1",
 	}
 	ss.Add(&s0)
 
@@ -74,7 +74,7 @@ dC50eHRVVAUAA0rpBFV1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEAAQBOAAAARwAAAAAA
 	var sx model.Submission
 	err = json.Unmarshal(b, &sx)
 	require.NoError(t, err, "POST /v1/.../submissions unmarshaling failed")
-	require.Equal(t, 2, sx.ID,
+	require.Equal(t, "2", sx.ID,
 		"GET /v1/.../submission unmarshalled incorrectly")
 	testSubmissionData(t, &sx, map[string]string{
 		"test.txt": "test\x0a",

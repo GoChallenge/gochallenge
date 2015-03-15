@@ -7,24 +7,24 @@ type Participation int
 
 // Possible levels of challenge participation
 const (
-	lvlNormal = iota
-	lvlBonus
-	lvlFun
-	lvlAnonymous
+	LvlNormal = iota
+	LvlBonus
+	LvlFun
+	LvlAnonymous
 )
 
 var participationEncoder = map[Participation]([]byte){
-	lvlNormal:    []byte(`"normal"`),
-	lvlBonus:     []byte(`"bonus"`),
-	lvlFun:       []byte(`"fun"`),
-	lvlAnonymous: []byte(`"anonymous"`),
+	LvlNormal:    []byte(`"normal"`),
+	LvlBonus:     []byte(`"bonus"`),
+	LvlFun:       []byte(`"fun"`),
+	LvlAnonymous: []byte(`"anonymous"`),
 }
 
 var participationDecoder = map[string]Participation{
-	`"normal"`:    lvlNormal,
-	`"bonus"`:     lvlBonus,
-	`"fun"`:       lvlFun,
-	`"anonymous"`: lvlAnonymous,
+	`"normal"`:    LvlNormal,
+	`"bonus"`:     LvlBonus,
+	`"fun"`:       LvlFun,
+	`"anonymous"`: LvlAnonymous,
 }
 
 // MarshalJSON marshals participation into its string-based JSON form

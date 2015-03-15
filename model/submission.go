@@ -3,6 +3,7 @@ package model
 // Submissions repository interface
 type Submissions interface {
 	All() ([]*Submission, error)
+	AllForChallenge(*Challenge) ([]*Submission, error)
 	Find(int) (Submission, error)
 	Add(*Submission) error
 }
@@ -15,7 +16,7 @@ type User struct {
 // Submission type describes details of a submitted solutions for a
 // challenge
 type Submission struct {
-	ID          int           `json:"id"`
+	ID          string        `json:"id"`
 	User        User          `json:"user"`
 	ChallengeID int           `json:"challenge_id"`
 	Type        Participation `json:"type"`

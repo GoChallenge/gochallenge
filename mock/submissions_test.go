@@ -11,12 +11,12 @@ import (
 func TestSubmissionsMockRepo(t *testing.T) {
 	ss := mock.NewSubmissions()
 	s0 := &model.Submission{
-		ID: 1,
+		ID: "1",
 	}
 	require.NoError(t, ss.Add(s0), "adding s0 submission errored")
 
 	s1 := &model.Submission{
-		ID: 2,
+		ID: "2",
 	}
 	require.NoError(t, ss.Add(s1), "adding s1 submission errored")
 
@@ -24,5 +24,33 @@ func TestSubmissionsMockRepo(t *testing.T) {
 	sx, err := ss.All()
 	require.NoError(t, err, "all submissions returned an error")
 	require.Equal(t, []*model.Submission{s0, s1}, sx,
+		"all submissions not returned correctly")
+}
+
+func TestSubmissionsAllForChallenge(t *testing.T) {
+	c0 := &model.Challenge{
+		ID: 1,
+	}
+	ss := mock.NewSubmissions()
+	s0 := &model.Submission{
+		ID:        "1",
+		Challenge: c0,
+	}
+	require.NoError(t, ss.Add(s0), "adding s0 submission errored")
+
+	c1 := &model.Challenge{
+		ID: 2,
+	}
+	s1 := &model.Submission{
+		ID:        "2",
+		Challenge: c1,
+	}
+	require.NoError(t, ss.Add(s1), "adding s1 submission errored")
+
+	// AllForChallenge should return all submissions for a given
+	// challenge only
+	sx, err := ss.AllForChallenge(c0)
+	require.NoError(t, err, "all for challenge returned an error")
+	require.Equal(t, []*model.Submission{s0}, sx,
 		"all submissions not returned correctly")
 }

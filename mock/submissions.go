@@ -2,6 +2,7 @@ package mock
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/gochallenge/gochallenge/model"
 )
@@ -21,7 +22,7 @@ func NewSubmissions() Submissions {
 
 // Add another challenge to the mock repo
 func (ss *Submissions) Add(s *model.Submission) error {
-	s.ID = len(ss.ary) + 1
+	s.ID = strconv.Itoa(len(ss.ary) + 1)
 	ss.ary = append(ss.ary, s)
 	return nil
 }
@@ -34,4 +35,15 @@ func (ss *Submissions) Find(id int) (model.Submission, error) {
 // All submissions received
 func (ss *Submissions) All() ([]*model.Submission, error) {
 	return ss.ary, nil
+}
+
+// AllForChallenge return submissions received for the given challenge
+func (ss *Submissions) AllForChallenge(c *model.Challenge) ([]*model.Submission, error) {
+	var sx []*model.Submission
+	for _, s := range ss.ary {
+		if s.Challenge.ID == c.ID {
+			sx = append(sx, s)
+		}
+	}
+	return sx, nil
 }
