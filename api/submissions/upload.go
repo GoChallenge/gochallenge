@@ -16,11 +16,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func writeError(w http.ResponseWriter, err error) {
-	w.WriteHeader(http.StatusBadRequest)
-	w.Write([]byte(fmt.Sprintf("%s", err)))
-}
-
 func boundary(r *http.Request) (string, error) {
 	var bnd string
 

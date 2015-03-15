@@ -23,6 +23,7 @@ func server(cfg Config) *httprouter.Router {
 	r.GET("/v1/challenges/:id", challenges.Get(cfg.Challenges))
 	r.GET("/v1/challenges/:id/submissions",
 		submissions.List(cfg.Challenges, cfg.Submissions))
+	r.GET("/v1/submissions/:id/download", submissions.Download(cfg.Submissions))
 	r.POST("/v1/challenges/:id/submissions",
 		submissions.Post(cfg.Challenges, cfg.Submissions))
 	r.GET("/code/:id", challenges.Get(cfg.Challenges))
