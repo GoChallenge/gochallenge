@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/gochallenge/gochallenge/api/auth"
 	"github.com/gochallenge/gochallenge/api/challenges"
 	"github.com/gochallenge/gochallenge/api/submissions"
 	"github.com/gochallenge/gochallenge/model"
@@ -26,6 +27,8 @@ func server(cfg Config) *httprouter.Router {
 	r.GET("/v1/submissions/:id/download", submissions.Download(cfg.Submissions))
 	r.POST("/v1/challenges/:id/submissions",
 		submissions.Post(cfg.Challenges, cfg.Submissions))
+	r.GET("/v1/auth/github", auth.GithubInit())
+	r.GET("/v1/auth/github_verify", auth.GithubVerify())
 	r.GET("/code/:id", challenges.Get(cfg.Challenges))
 
 	return r
