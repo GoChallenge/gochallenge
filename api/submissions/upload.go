@@ -17,14 +17,14 @@ import (
 )
 
 func boundary(r *http.Request) (string, error) {
-	var bnd string
-
 	ct := r.Header.Get("Content-Type")
 	mt, args, err := mime.ParseMediaType(ct)
-	bnd = args["boundary"]
-
-	if err == nil && (!strings.HasPrefix(mt, "multipart/") || bnd == "") {
-		err = fmt.Errorf("invalid content type %s", ct)
+	if err != nil {
+		return "", err
+	}
+	bnd := args["boundary"]
+	if !strings.HasPrefix(mt, "multipart/") || bnd == "" {
+		return "", fmt.Errorf("invalid content type %s", ct)
 	}
 	return bnd, err
 }
