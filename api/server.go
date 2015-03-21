@@ -13,6 +13,9 @@ import (
 	"github.com/morhekil/mw"
 )
 
+const assetsPath = "web/assets"
+const indexPath = "web/index.html"
+
 // Config of the API setup
 type Config struct {
 	Challenges  model.Challenges
@@ -35,7 +38,13 @@ func server(cfg Config) *httprouter.Router {
 	r.GET("/v1/user", users.Me(cfg.Users))
 	r.GET("/code/:id", challenges.Get(cfg.Challenges))
 
+	r.ServeFiles("/assets/*filepath", http.Dir(assetsPath))
+	r.GET("/", indexHTML)
 	return r
+}
+
+func indexHTML(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	http.ServeFile(w, r, indexPath)
 }
 
 // New server created and configured as an instance of martini server
