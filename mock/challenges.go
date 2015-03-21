@@ -1,10 +1,6 @@
 package mock
 
-import (
-	"errors"
-
-	"github.com/gochallenge/gochallenge/model"
-)
+import "github.com/gochallenge/gochallenge/model"
 
 // CurrentID is an ID of a challenge that mock considers to be
 // the current one
@@ -38,8 +34,7 @@ func (cs *Challenges) Find(id int) (model.Challenge, error) {
 	)
 
 	if c, ok = cs.index[id]; !ok {
-		return model.Challenge{},
-			errors.New("Unknown challenge ID")
+		return model.Challenge{}, model.ErrNotFound
 	}
 
 	return *c, nil

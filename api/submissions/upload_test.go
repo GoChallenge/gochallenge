@@ -104,3 +104,19 @@ func testSubmissionData(t *testing.T, sx *model.Submission, ex map[string]string
 	// And verify that the map is the same as the expected one
 	require.Equal(t, ex, files, "GET /v1/.../submission data not loaded")
 }
+
+func TestPostToWrongChallenge(t *testing.T) {
+	cs := mock.NewChallenges()
+	a := api.New(api.Config{
+		Challenges: &cs,
+	})
+	ts := httptest.NewServer(a)
+
+	path := fmt.Sprintf("/v1/challenges/%d/submissions", 123)
+	buf := strings.NewReader("somedata")
+	res, err := http.Post(ts.URL+path, "multipart/related; boundary=xxx", buf)
+	defer res.Body.Close()
+
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, res.StatusCode)
+}

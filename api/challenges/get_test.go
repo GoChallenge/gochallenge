@@ -68,6 +68,21 @@ func TestGetCurrentChallenge(t *testing.T) {
 	testGettingChallenge(t, path, c0)
 }
 
+func TestGetCurrentChallengeMissing(t *testing.T) {
+	cs := mock.NewChallenges()
+	a := api.New(api.Config{
+		Challenges: &cs,
+	})
+	ts := httptest.NewServer(a)
+
+	path := "/v1/challenges/current"
+	res, err := http.Get(ts.URL + path)
+
+	require.NoError(t, err, "GET "+path+" should not error")
+	defer res.Body.Close()
+	require.Equal(t, http.StatusNotFound, res.StatusCode)
+}
+
 func TestGoGetChallenge(t *testing.T) {
 	c0 := model.Challenge{
 		ID:     mock.CurrentID,

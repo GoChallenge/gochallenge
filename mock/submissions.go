@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"errors"
 	"strconv"
 
 	"github.com/gochallenge/gochallenge/model"
@@ -34,7 +33,7 @@ func (ss *Submissions) Find(id string) (*model.Submission, error) {
 			return s, nil
 		}
 	}
-	return nil, errors.New("Not implemented")
+	return nil, model.ErrNotFound
 }
 
 // All submissions received

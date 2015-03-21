@@ -99,3 +99,18 @@ func TestListEmpty(t *testing.T) {
 	require.Equal(t, "[]\n", string(b),
 		"GET /v1/.../submissions unmarshalled incorrectly")
 }
+
+func TestListMissing(t *testing.T) {
+	cs := mock.NewChallenges()
+	a := api.New(api.Config{
+		Challenges: &cs,
+	})
+	ts := httptest.NewServer(a)
+
+	path := fmt.Sprintf("/v1/challenges/%d/submissions", 123)
+	res, err := http.Get(ts.URL + path)
+	defer res.Body.Close()
+
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, res.StatusCode)
+}
