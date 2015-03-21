@@ -1,6 +1,9 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 // Submissions repository interface
 type Submissions interface {
@@ -19,6 +22,7 @@ type Submission struct {
 	Type        Participation `json:"type"`
 	Challenge   *Challenge    `json:"-"`
 	Data        []byte        `json:"-"`
+	Created     time.Time     `json:"created"`
 }
 
 // type aliases to aid in custom marshalling of Submission structs

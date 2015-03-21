@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gochallenge/gochallenge/api/write"
 	"github.com/gochallenge/gochallenge/model"
@@ -156,5 +157,6 @@ func storeSubmission(err error, ss model.Submissions, s *model.Submission) error
 	if err != nil {
 		return err
 	}
+	s.Created = time.Now().UTC()
 	return ss.Add(s)
 }
