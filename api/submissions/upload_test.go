@@ -56,26 +56,19 @@ dC50eHRVVAUAA0rpBFV1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEAAQBOAAAARwAAAAAA
 --%[1]s--
 `, bnd)
 	buf := strings.NewReader(data)
-	req, err := http.NewRequest("POST", ts.URL+path, buf)
-	req.Header.Add("Content-Type", "multipart/related; boundary="+bnd)
-
-	hc := &http.Client{}
-	res, err := hc.Do(req)
+	res, err := http.Post(ts.URL+path, "multipart/related; boundary="+bnd, buf)
 	defer res.Body.Close()
 
-	require.NoError(t, err, "POST /v1/.../submissions should not error")
+	require.NoError(t, err)
 	b, err := ioutil.ReadAll(res.Body)
-	require.NoError(t, err, "POST /v1/.../submissions should read the body")
+	require.NoError(t, err)
 
-	require.Equal(t, "200 OK", res.Status,
-		fmt.Sprintf("POST /v1/.../submissions returned error %s, %s",
-			res.Status, b))
+	require.Equal(t, "200 OK", res.Status)
 
 	var sx model.Submission
 	err = json.Unmarshal(b, &sx)
-	require.NoError(t, err, "POST /v1/.../submissions unmarshaling failed")
-	require.Equal(t, "2", sx.ID,
-		"GET /v1/.../submission unmarshalled incorrectly")
+	require.NoError(t, err)
+	require.Equal(t, "2", sx.ID)
 
 	sl, err := ss.Find(sx.ID)
 	testSubmissionData(t, sl, map[string]string{
@@ -98,11 +91,11 @@ func testSubmissionData(t *testing.T, sx *model.Submission, ex map[string]string
 			b, err = ioutil.ReadAll(zf)
 			files[f.Name] = string(b)
 		}
-		require.NoError(t, err, "reading files from zip data failed")
+		require.NoError(t, err)
 	}
 
 	// And verify that the map is the same as the expected one
-	require.Equal(t, ex, files, "GET /v1/.../submission data not loaded")
+	require.Equal(t, ex, files)
 }
 
 func TestPostToWrongChallenge(t *testing.T) {

@@ -20,9 +20,9 @@ func Download(ss model.Submissions) httprouter.Handle {
 			return
 		}
 
-		w.Header().Add("Content-Type", "application/zip")
-		w.Header().Add("Content-Disposition", "attachment; filename=code.zip")
-		w.Header().Add("Content-Length", strconv.Itoa(len(s.Data)))
+		w.Header().Set("Content-Type", "application/zip")
+		w.Header().Set("Content-Disposition", "attachment; filename=code.zip")
+		w.Header().Set("Content-Length", strconv.Itoa(len(s.Data)))
 		w.Write(s.Data)
 	}
 }

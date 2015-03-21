@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func getBody(t *testing.T, path string, c0 model.Challenge) []byte {
+func getBody(t *testing.T, path string, c0 model.Challenge) (*http.Response, []byte) {
 	cs := mock.NewChallenges()
 	a := api.New(api.Config{
 		Challenges: &cs,
@@ -30,17 +30,18 @@ func getBody(t *testing.T, path string, c0 model.Challenge) []byte {
 	body, err := ioutil.ReadAll(res.Body)
 	require.NoError(t, err, "GET "+path+" should read the body")
 
-	return body
+	return res, body
 }
 
 func testGettingChallenge(t *testing.T, path string, c0 model.Challenge) {
-	body := getBody(t, path, c0)
+	res, body := getBody(t, path, c0)
 
 	c1 := model.Challenge{}
 	err := json.Unmarshal(body, &c1)
 
 	require.NoError(t, err, "GET "+path+" unmarshal errored")
 	require.Equal(t, c0, c1, "GET "+path+" unmarshalled incorrectly")
+	require.Contains(t, res.Header.Get("Content-Type"), "application/json")
 }
 
 func TestGetChallenge(t *testing.T) {
@@ -92,7 +93,9 @@ func TestGoGetChallenge(t *testing.T) {
 	}
 	path := fmt.Sprintf("/code/challenge-%03d?go-get=1", mock.CurrentID)
 
-	body := getBody(t, path, c0)
+	res, body := getBody(t, path, c0)
+
+	require.Contains(t, res.Header.Get("Content-Type"), "text/html")
 
 	meta := fmt.Sprintf(`<meta name="go-import" content="%s git %s">`,
 		c0.Import, c0.Git)

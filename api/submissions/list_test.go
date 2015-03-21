@@ -88,16 +88,15 @@ func TestListEmpty(t *testing.T) {
 	res, err := http.Get(ts.URL + path)
 	defer res.Body.Close()
 
-	require.NoError(t, err, "GET /v1/.../submissions should not error")
-	require.Equal(t, "200 OK", res.Status,
-		fmt.Sprintf("GET /v1/.../submissions error code %s", res.Status))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, res.StatusCode)
+	require.Contains(t, res.Header.Get("Content-Type"), "application/json")
 
 	b, err := ioutil.ReadAll(res.Body)
-	require.NoError(t, err, "GET /v1/.../submissions should read the body")
+	require.NoError(t, err)
 
-	require.NoError(t, err, "GET /v1/.../submissions unmarshaling failed")
-	require.Equal(t, "[]\n", string(b),
-		"GET /v1/.../submissions unmarshalled incorrectly")
+	require.NoError(t, err)
+	require.Equal(t, "[]\n", string(b))
 }
 
 func TestListMissing(t *testing.T) {

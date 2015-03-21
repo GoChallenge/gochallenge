@@ -2,7 +2,6 @@ package challenges_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -43,16 +42,15 @@ func TestList(t *testing.T) {
 	res, err := http.Get(ts.URL + "/v1/challenges")
 	defer res.Body.Close()
 
-	require.NoError(t, err, "GET /v1/challenges should not error")
-	require.Equal(t, "200 OK", res.Status,
-		fmt.Sprintf("GET /v1/challenges returned error code %s", res.Status))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, res.StatusCode)
+	require.Contains(t, res.Header.Get("Content-Type"), "application/json")
 
 	b, err := ioutil.ReadAll(res.Body)
-	require.NoError(t, err, "GET /v1/challenges should read the body")
+	require.NoError(t, err)
 
 	var cx []model.Challenge
 	err = json.Unmarshal(b, &cx)
-	require.NoError(t, err, "GET /v1/challenges unmarshaling failed")
-	require.Equal(t, []model.Challenge{c0, c1}, cx,
-		"GET /v1/challenges unmarshalled incorrectly")
+	require.NoError(t, err)
+	require.Equal(t, []model.Challenge{c0, c1}, cx)
 }

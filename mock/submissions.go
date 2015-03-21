@@ -11,7 +11,7 @@ type Submissions struct {
 	ary []*model.Submission
 }
 
-// NewSubmissions returns a new initialised struct of challenges
+// NewSubmissions returns a new initialised struct of submissions
 func NewSubmissions() Submissions {
 	var ss []*model.Submission
 	return Submissions{
@@ -19,14 +19,14 @@ func NewSubmissions() Submissions {
 	}
 }
 
-// Add another challenge to the mock repo
+// Add another submission to the mock repo
 func (ss *Submissions) Add(s *model.Submission) error {
 	s.ID = strconv.Itoa(len(ss.ary) + 1)
 	ss.ary = append(ss.ary, s)
 	return nil
 }
 
-// Find a challenge in the repository by its id
+// Find a submission in the repository by its id
 func (ss *Submissions) Find(id string) (*model.Submission, error) {
 	for _, s := range ss.ary {
 		if s.ID == id {

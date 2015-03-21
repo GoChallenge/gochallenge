@@ -67,6 +67,7 @@ func gogeter(err error, w http.ResponseWriter, c model.Challenge) error {
 	}
 
 	s := fmt.Sprintf(gogetMeta, c.Import, c.Git)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_, err = w.Write([]byte(s))
 	return err
 }
