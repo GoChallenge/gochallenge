@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
@@ -110,7 +109,6 @@ func githubClient() *oauth2.Config {
 }
 
 func state() string {
-	rand.Seed(time.Now().UTC().UnixNano())
 	b := make([]byte, 32)
 	for i := range b {
 		b[i] = byte(rand.Intn(256))

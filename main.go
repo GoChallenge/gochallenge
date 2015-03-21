@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -11,6 +12,8 @@ import (
 )
 
 func main() {
+	rand.Seed(time.Now().UTC().UnixNano())
+
 	cs := mock.NewChallenges()
 	cs.Add(model.Challenge{
 		ID:     mock.CurrentID - 1,
