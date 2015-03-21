@@ -69,7 +69,7 @@ func GithubVerify(us model.Users) httprouter.Handle {
 			//
 			// Before that, make sure HTTP router has web handler in addition
 			// to API handlers
-			url := fmt.Sprintf("http://localhost:8080/#api_key=%s", u.APIKey)
+			url := fmt.Sprintf("/#api_key=%s", u.APIKey)
 			http.RedirectHandler(url, http.StatusFound).ServeHTTP(w, r)
 			return
 		}
