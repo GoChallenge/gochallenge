@@ -2,14 +2,15 @@ package auth
 
 import (
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"os"
 	"strings"
 	"time"
 
+	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/oauth2"
 )
@@ -30,12 +31,12 @@ func GithubInit() httprouter.Handle {
 
 // GithubVerify verifies github callback information, and inits
 // user record
-func GithubVerify() httprouter.Handle {
+func GithubVerify(us model.Users) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		_ httprouter.Params) {
 		var (
 			res *http.Response
-			b   []byte
+			u   *model.User
 		)
 
 		r.ParseForm()
@@ -43,11 +44,34 @@ func GithubVerify() httprouter.Handle {
 		if err == nil {
 			res, err = hc.Get(githubAPIUser)
 		}
+
+		gu := new(model.GitHubUser)
 		if err == nil {
-			b, err = ioutil.ReadAll(res.Body)
+			err = json.NewDecoder(res.Body).Decode(gu)
 		}
+
+		if u, err = us.FindByID(gu.ID); err != nil {
+			// Add new user.
+			u = gu.ToUser()
+			err = us.Add(u)
+		} else {
+			// Update user from GitHub.
+			u.Name = gu.Name
+			u.Email = gu.Email
+			u.AvatarURL = gu.AvatarURL
+			err = us.Update(u)
+		}
+
 		if err == nil {
-			w.Write(b)
+			// @TODO(Akeda)
+			//
+			// Make url dynamic based on the `url_redirect` query string before
+			// authorising with GitHub.
+			//
+			// Before that, make sure HTTP router has web handler in addition
+			// to API handlers
+			url := fmt.Sprintf("http://localhost:8080/#api_key=%s", u.APIKey)
+			http.RedirectHandler(url, http.StatusFound).ServeHTTP(w, r)
 			return
 		}
 

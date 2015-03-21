@@ -10,11 +10,6 @@ type Submissions interface {
 	Add(*Submission) error
 }
 
-// User of a challenge
-type User struct {
-	Name string `json:"name"`
-}
-
 // Submission type describes details of a submitted solutions for a
 // challenge
 type Submission struct {
