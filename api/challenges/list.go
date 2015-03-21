@@ -2,9 +2,9 @@ package challenges
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
+	"github.com/gochallenge/gochallenge/api/write"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
 )
@@ -13,19 +13,20 @@ import (
 func List(cs model.Challenges) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		ps httprouter.Params) {
-		var b []byte
 
 		cx, err := cs.All()
-
-		if err == nil {
-			b, err = json.Marshal(cx)
-		}
+		err = writeChallenges(err, w, &cx)
 
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("%s", err)))
-		} else {
-			w.Write(b)
+			write.Error(w, r, err)
 		}
 	}
+}
+
+func writeChallenges(err error, w http.ResponseWriter, cx *[]model.Challenge) error {
+	if err != nil {
+		return err
+	}
+
+	return json.NewEncoder(w).Encode(cx)
 }

@@ -8,11 +8,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gochallenge/gochallenge/api/write"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
 )
 
-type marshalFunc func(model.Challenge) ([]byte, error)
+type writerFunc func(error, http.ResponseWriter, model.Challenge) error
 
 const gogetMeta = `<meta name="go-import" content="%s git %s">`
 
@@ -26,20 +27,11 @@ const gogetMeta = `<meta name="go-import" content="%s git %s">`
 func Get(cs model.Challenges) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		ps httprouter.Params) {
-		var b []byte
 
 		c, err := findChallenge(cs, ps.ByName("id"))
 
-		if err == nil {
-			f := responseFormat(r)
-			b, err = f(c)
-		}
-
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("%s", err)))
-		} else {
-			w.Write(b)
+		if err = responder(r)(err, w, c); err != nil {
+			write.Error(w, r, err)
 		}
 	}
 }
@@ -58,7 +50,7 @@ func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
 }
 
 // determine response format by request parameters
-func responseFormat(r *http.Request) marshalFunc {
+func responder(r *http.Request) writerFunc {
 	if err := r.ParseForm(); err == nil && r.Form.Get("go-get") == "1" {
 		return gogeter
 	}
@@ -66,14 +58,23 @@ func responseFormat(r *http.Request) marshalFunc {
 }
 
 // render a challenge in a way interpretable by go get tool
-func gogeter(c model.Challenge) ([]byte, error) {
-	if c.Git != "" {
-		return []byte(fmt.Sprintf(gogetMeta, c.Import, c.Git)), nil
+func gogeter(err error, w http.ResponseWriter, c model.Challenge) error {
+	if err != nil {
+		return err
 	}
-	return []byte{}, errors.New("challenge does not have git remote")
+	if c.Git == "" {
+		return errors.New("challenge does not have git remote")
+	}
+
+	s := fmt.Sprintf(gogetMeta, c.Import, c.Git)
+	_, err = w.Write([]byte(s))
+	return err
 }
 
 // render a challenge as json
-func jsonifier(c model.Challenge) ([]byte, error) {
-	return json.Marshal(c)
+func jsonifier(err error, w http.ResponseWriter, c model.Challenge) error {
+	if err != nil {
+		return err
+	}
+	return json.NewEncoder(w).Encode(c)
 }
