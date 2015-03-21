@@ -34,7 +34,8 @@ type GitHubUser struct {
 func (gu *GitHubUser) ToUser() *User {
 	return &User{
 		ID:        gu.ID,
-		Name:      gu.Email,
+		Name:      gu.Name,
+		Email:     gu.Email,
 		AvatarURL: gu.AvatarURL,
 		APIKey:    fmt.Sprintf("%d-%s", gu.ID, generateToken()),
 	}
