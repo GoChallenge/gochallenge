@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gochallenge/gochallenge/api/auth"
 	"github.com/gochallenge/gochallenge/api/challenges"
@@ -44,34 +45,27 @@ func server(cfg Config) *httprouter.Router {
 }
 
 func indexHTML(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "text/html")
 	http.ServeFile(w, r, indexPath)
 }
 
 // New server created and configured as an instance of martini server
 func New(cfg Config) http.Handler {
-	hs := map[string]string{
-		"Content-Type":                "application/json; charset=utf-8",
-		"Access-Control-Allow-Origin": "*",
-	}
-
 	return alice.New(
 		mw.Recover,
 		mw.Logger,
-		mw.Headers(hs),
-		handleOptions,
+		headerMiddleware,
 	).Then(server(cfg))
 }
 
-// Middleware to handle OPTIONS request.
-func handleOptions(h http.Handler) http.Handler {
+func headerMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "OPTIONS" {
-			w.Header().Add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
-			w.Header().Add("Access-Control-Allow-Headers", "ApiKey")
-			w.WriteHeader(http.StatusOK)
-			return
+		switch {
+		case strings.HasPrefix(r.URL.Path, "/v1/"):
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		case strings.HasPrefix(r.URL.Path, "/code"):
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		}
-
 		h.ServeHTTP(w, r)
 	})
 }
