@@ -96,6 +96,6 @@ func TestListEmpty(t *testing.T) {
 	require.NoError(t, err, "GET /v1/.../submissions should read the body")
 
 	require.NoError(t, err, "GET /v1/.../submissions unmarshaling failed")
-	require.Equal(t, "[]", string(b),
+	require.Equal(t, "[]\n", string(b),
 		"GET /v1/.../submissions unmarshalled incorrectly")
 }

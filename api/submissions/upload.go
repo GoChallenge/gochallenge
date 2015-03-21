@@ -12,9 +12,63 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gochallenge/gochallenge/api/write"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
 )
+
+// Post new sumission
+func Post(cs model.Challenges, ss model.Submissions) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request,
+		ps httprouter.Params) {
+		var (
+			c   model.Challenge
+			s   model.Submission
+			err error
+		)
+		c, err = findChallenge(cs, ps.ByName("id"))
+		err = readSubmission(err, &s, r)
+		err = storeSubmission(err, ss, &s)
+
+		s.Challenge = &c
+		err = writeSubmission(err, w, s)
+
+		write.Error(w, r, err)
+	}
+}
+
+// find a challenge given the value of requested ID string
+func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
+	cid, err := strconv.Atoi(id)
+	if err != nil {
+		return model.Challenge{}, err
+	}
+	return cs.Find(cid)
+}
+
+func readSubmission(err error, s *model.Submission, r *http.Request) error {
+	var bnd string
+
+	if err != nil {
+		return err
+	}
+
+	if bnd, err = boundary(r); err != nil {
+		return err
+	}
+
+	mr := multipart.NewReader(r.Body, bnd)
+	for ; err == nil; err = parsePart(mr, s) {
+	}
+
+	// io.EOF means we completed the parsing, this is not a reportable
+	// error
+	if err == io.EOF {
+		err = nil
+	}
+
+	return err
+}
 
 func boundary(r *http.Request) (string, error) {
 	ct := r.Header.Get("Content-Type")
@@ -22,6 +76,7 @@ func boundary(r *http.Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	bnd := args["boundary"]
 	if !strings.HasPrefix(mt, "multipart/") || bnd == "" {
 		return "", fmt.Errorf("invalid content type %s", ct)
@@ -29,36 +84,34 @@ func boundary(r *http.Request) (string, error) {
 	return bnd, err
 }
 
-func readSubmission(s *model.Submission, r *http.Request) error {
-	var p *multipart.Part
+// Parse the next part of multipart message, and handle its content
+// depending on this part's content type
+func parsePart(mr *multipart.Reader, s *model.Submission) error {
+	var (
+		p   *multipart.Part
+		mt  string
+		err error
+	)
+	if p, err = mr.NextPart(); err != nil {
+		return err
+	}
 
-	bnd, err := boundary(r)
+	mt, _, err = mime.ParseMediaType(p.Header.Get("Content-Type"))
 	if err != nil {
 		return err
 	}
 
-	mr := multipart.NewReader(r.Body, bnd)
-	for p, err = mr.NextPart(); err == nil; p, err = mr.NextPart() {
-		mt, _, err := mime.ParseMediaType(p.Header.Get("Content-Type"))
-		if err == nil {
-			switch mt {
-			case "application/json":
-				err = parseJSON(s, p)
-			case "application/zip":
-				err = parseZip(s, p)
-			}
-		}
-		if err != nil {
-			break
-		}
+	switch mt {
+	case "application/json":
+		err = parseJSON(s, p)
+	case "application/zip":
+		err = parseZip(s, p)
 	}
 
-	if err == io.EOF {
-		return nil
-	}
 	return err
 }
 
+// JSON part is submission's metadata
 func parseJSON(s *model.Submission, p *multipart.Part) error {
 	b, err := ioutil.ReadAll(p)
 	if err != nil {
@@ -67,6 +120,7 @@ func parseJSON(s *model.Submission, p *multipart.Part) error {
 	return json.Unmarshal(b, s)
 }
 
+// ZIP part is submission's binary archive
 func parseZip(s *model.Submission, p *multipart.Part) error {
 	var (
 		b   []byte
@@ -89,45 +143,18 @@ func parseZip(s *model.Submission, p *multipart.Part) error {
 	return nil
 }
 
-// Post new sumission
-func Post(cs model.Challenges, ss model.Submissions) httprouter.Handle {
-	return func(w http.ResponseWriter, r *http.Request,
-		ps httprouter.Params) {
-		var (
-			c   model.Challenge
-			s   model.Submission
-			err error
-			b   []byte
-		)
-		c, err = findChallenge(cs, ps.ByName("id"))
+func writeSubmission(err error, w http.ResponseWriter,
+	s model.Submission) error {
 
-		if err == nil {
-			err = readSubmission(&s, r)
-		}
-
-		if err == nil {
-			s.Challenge = &c
-			err = ss.Add(&s)
-		}
-
-		if err == nil {
-			b, err = json.Marshal(s)
-		}
-
-		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("%s", err)))
-		} else {
-			w.Write(b)
-		}
+	if err != nil {
+		return err
 	}
+	return json.NewEncoder(w).Encode(s)
 }
 
-// find a challenge given the value of requested ID string
-func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
-	cid, err := strconv.Atoi(id)
+func storeSubmission(err error, ss model.Submissions, s *model.Submission) error {
 	if err != nil {
-		return model.Challenge{}, err
+		return err
 	}
-	return cs.Find(cid)
+	return ss.Add(s)
 }

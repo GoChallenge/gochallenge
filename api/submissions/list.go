@@ -2,9 +2,9 @@ package submissions
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
+	"github.com/gochallenge/gochallenge/api/write"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
 )
@@ -13,26 +13,32 @@ import (
 func List(cs model.Challenges, ss model.Submissions) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		ps httprouter.Params) {
-		var (
-			b  []byte
-			sx []*model.Submission
-		)
+		var sx []*model.Submission
 
 		c, err := findChallenge(cs, ps.ByName("id"))
-
-		if err == nil {
-			sx, err = ss.AllForChallenge(&c)
-		}
-
-		if err == nil {
-			b, err = json.Marshal(sx)
-		}
+		sx, err = listSubmissions(err, ss, &c)
+		err = writeSubmissions(err, w, sx)
 
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(fmt.Sprintf("%s", err)))
-		} else {
-			w.Write(b)
+			write.Error(w, r, err)
 		}
 	}
+}
+
+func listSubmissions(err error, ss model.Submissions,
+	c *model.Challenge) ([]*model.Submission, error) {
+
+	if err != nil {
+		return nil, err
+	}
+	return ss.AllForChallenge(c)
+}
+
+func writeSubmissions(err error, w http.ResponseWriter,
+	sx []*model.Submission) error {
+
+	if err != nil {
+		return err
+	}
+	return json.NewEncoder(w).Encode(sx)
 }
