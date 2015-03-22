@@ -30,7 +30,7 @@ func Post(cs model.Challenges, ss model.Submissions, us model.Users) httprouter.
 		)
 
 		c, err = findChallenge(cs, ps.ByName("id"))
-		err = verifyUser(err, r, us, &u)
+		u, err = verifyUser(err, r, us)
 		err = readSubmission(err, &s, r)
 		err = storeSubmission(err, ss, &s, u)
 
@@ -50,13 +50,18 @@ func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
 	return cs.Find(cid)
 }
 
-func verifyUser(err error, r *http.Request, us model.Users, u **model.User) error {
+func verifyUser(err error, r *http.Request, us model.Users) (*model.User, error) {
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	*u, err = us.FindByAPIKey(r.Header.Get("Auth-ApiKey"))
-	return err
+	u, err := us.FindByAPIKey(r.Header.Get("Auth-ApiKey"))
+	if err == model.ErrNotFound {
+		// If user is not found here - it means the API key is wrong,
+		// so rewriting it back as auth failure error
+		err = model.ErrAuthFailure
+	}
+	return u, err
 }
 
 func readSubmission(err error, s *model.Submission, r *http.Request) error {

@@ -9,11 +9,13 @@ type Error int
 const (
 	ErrNotFound Error = iota
 	ErrNoRemote
+	ErrAuthFailure
 )
 
 var errmsgs = map[Error]string{
-	ErrNotFound: "Not found",
-	ErrNoRemote: "Challenge does not have git remote",
+	ErrNotFound:    "Not found",
+	ErrNoRemote:    "Challenge does not have git remote",
+	ErrAuthFailure: "Invalid authentication",
 }
 
 func (e Error) Error() string {

@@ -123,6 +123,29 @@ func TestPostToWrongChallenge(t *testing.T) {
 	require.Equal(t, http.StatusNotFound, res.StatusCode)
 }
 
+func TestPostWithInvalidKey(t *testing.T) {
+	cs := mock.NewChallenges()
+	c0 := model.Challenge{
+		ID:     1,
+		Status: model.Open,
+	}
+	cs.Add(c0)
+	us := mock.NewUsers()
+	a := api.New(api.Config{
+		Challenges: &cs,
+		Users:      &us,
+	})
+	ts := httptest.NewServer(a)
+
+	path := fmt.Sprintf("/v1/challenges/%d/submissions", c0.ID)
+	buf := strings.NewReader("somedata")
+	res, err := http.Post(ts.URL+path, "multipart/related; boundary=xxx", buf)
+	defer res.Body.Close()
+
+	require.NoError(t, err)
+	require.Equal(t, http.StatusUnauthorized, res.StatusCode)
+}
+
 func requestAsUser(t *testing.T, u *model.User, uri string, bnd string,
 	body io.Reader) (*http.Response, error) {
 

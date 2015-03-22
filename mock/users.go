@@ -49,7 +49,7 @@ func (us *Users) FindByID(id int) (*model.User, error) {
 	)
 
 	if u, ok = us.index[id]; !ok {
-		return nil, errors.New("Unknown user ID")
+		return nil, model.ErrNotFound
 	}
 	return u, nil
 }
@@ -62,7 +62,7 @@ func (us *Users) FindByAPIKey(key string) (*model.User, error) {
 	)
 
 	if u, ok = us.indexAPIKey[key]; !ok {
-		return nil, errors.New("Unknown user")
+		return nil, model.ErrNotFound
 	}
 	return u, nil
 }
