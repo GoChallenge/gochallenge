@@ -16,27 +16,34 @@ type Users interface {
 
 // User of a challenge
 type User struct {
-	ID        int    `json:"-"`
-	Name      string `json:"name"`
-	Email     string `json:"email,omitempty"`
-	AvatarURL string `json:"avatar_url"`
-	APIKey    string `json:"-"`
+	ID          int    `json:"-"`
+	Name        string `json:"name"`
+	Email       string `json:"email,omitempty"`
+	AvatarURL   string `json:"avatar_url"`
+	GitHubURL   string `json:"github_url"`
+	GitHubLogin string `json:"github_login"`
+	APIKey      string `json:"-"`
 }
 
 // GitHubUser represents user of GitHub.
 type GitHubUser struct {
 	ID        int    `json:"id"`
+	Login     string `json:"login"`
 	Name      string `json:"name"`
 	Email     string `json:"email"`
 	AvatarURL string `json:"avatar_url"`
+	HTMLURL   string `json:"html_url"`
 }
 
 func (gu *GitHubUser) ToUser() *User {
 	return &User{
-		ID:        gu.ID,
-		Name:      gu.Email,
-		AvatarURL: gu.AvatarURL,
-		APIKey:    fmt.Sprintf("%d-%s", gu.ID, generateToken()),
+		ID:          gu.ID,
+		Name:        gu.Name,
+		Email:       gu.Email,
+		AvatarURL:   gu.AvatarURL,
+		GitHubURL:   gu.HTMLURL,
+		GitHubLogin: gu.Login,
+		APIKey:      fmt.Sprintf("%d-%s", gu.ID, generateToken()),
 	}
 }
 
