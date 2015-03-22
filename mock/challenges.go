@@ -21,9 +21,10 @@ func NewChallenges() Challenges {
 }
 
 // Add another challenge to the mock repo
-func (cs *Challenges) Add(c model.Challenge) {
+func (cs *Challenges) Add(c model.Challenge) error {
 	cs.ary = append(cs.ary, c)
 	cs.index[c.ID] = &c
+	return nil
 }
 
 // Find a challenge in the repository by its id

@@ -4,6 +4,7 @@ import "time"
 
 // Challenges repository interface
 type Challenges interface {
+	Add(Challenge) error
 	Find(int) (Challenge, error)
 	Current() (Challenge, error)
 	All() ([]Challenge, error)

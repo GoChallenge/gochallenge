@@ -1,25 +1,27 @@
-package mock_test
+package spec
 
 import (
 	"testing"
+	"time"
 
 	"github.com/gochallenge/gochallenge/mock"
 	"github.com/gochallenge/gochallenge/model"
-	"github.com/gochallenge/gochallenge/model/spec"
 	"github.com/stretchr/testify/require"
 )
 
-func TestChallengeMockRepo2(t *testing.T) {
-	cs := mock.NewChallenges()
-	spec.MustBehaveLikeChallenges(t, &cs)
-}
+// MustBehaveLikeChallenges tests behaviour of the given challenges
+// repo, to make sure it conforms to the expected API
+func MustBehaveLikeChallenges(t *testing.T, cs model.Challenges) {
+	const chalID = 123
+	const chalUnknownID = 1
 
-func TestChallengeMockRepo(t *testing.T) {
-	cs := mock.NewChallenges()
 	c1 := model.Challenge{
-		ID: 123,
+		ID:    chalID,
+		Name:  "The Test Challenge",
+		Start: time.Date(2014, 1, 1, 0, 0, 0, 0, time.UTC),
+		End:   time.Date(2044, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
-	cs.Add(c1)
+	require.NoError(t, cs.Add(c1))
 
 	// Search for First should return the challenge data
 	c, err := cs.Find(c1.ID)
@@ -27,8 +29,8 @@ func TestChallengeMockRepo(t *testing.T) {
 	require.Equal(t, c, c1, "existing challenge should be returned")
 
 	// Current challenge should return an error, as it doesn't exist
-	c, err = cs.Find(mock.CurrentID)
-	require.Error(t, err, "unknown challenge lookup should error")
+	c, err = cs.Find(chalUnknownID)
+	require.Equal(t, model.ErrNotFound, err)
 
 	// Current challenge should return the correct one, after it has
 	// been added
