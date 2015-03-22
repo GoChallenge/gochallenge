@@ -12,6 +12,7 @@ const (
 	ErrCryptoFailure
 	ErrGithubAPIError
 	ErrAuthFailure
+	ErrNotImplemented
 )
 
 var errmsgs = map[Error]string{
@@ -20,6 +21,7 @@ var errmsgs = map[Error]string{
 	ErrCryptoFailure:  "Error in cryptographical operation",
 	ErrGithubAPIError: "Error communicating with Github API",
 	ErrAuthFailure:    "Invalid authentication",
+	ErrNotImplemented: "Not implemented",
 }
 
 func (e Error) Error() string {
