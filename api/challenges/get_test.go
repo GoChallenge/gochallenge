@@ -21,7 +21,7 @@ func getBody(t *testing.T, path string, c0 model.Challenge) (*http.Response, []b
 		Challenges: &cs,
 	})
 	ts := httptest.NewServer(a)
-	cs.Add(c0)
+	cs.Add(&c0)
 
 	res, err := http.Get(ts.URL + path)
 

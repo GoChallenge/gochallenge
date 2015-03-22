@@ -33,7 +33,7 @@ func TestList(t *testing.T) {
 		Start:  time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
 		End:    time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
 	}
-	cs.Add(c0)
+	cs.Add(&c0)
 
 	s0 := model.Submission{
 		ID:        "0000-abcd",
@@ -82,7 +82,7 @@ func TestListEmpty(t *testing.T) {
 		Start:  time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
 		End:    time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
 	}
-	cs.Add(c0)
+	cs.Add(&c0)
 
 	path := fmt.Sprintf("/v1/challenges/%d/submissions", c0.ID)
 	res, err := http.Get(ts.URL + path)

@@ -23,18 +23,16 @@ func Post(cs model.Challenges, ss model.Submissions, us model.Users) httprouter.
 	return func(w http.ResponseWriter, r *http.Request,
 		ps httprouter.Params) {
 		var (
-			c   model.Challenge
 			s   model.Submission
 			u   *model.User
 			err error
 		)
 
-		c, err = findChallenge(cs, ps.ByName("id"))
+		s.Challenge, err = findChallenge(cs, ps.ByName("id"))
 		u, err = verifyUser(err, r, us)
 		err = readSubmission(err, &s, r)
 		err = storeSubmission(err, ss, &s, u)
 
-		s.Challenge = &c
 		err = writeSubmission(err, w, s)
 
 		write.Error(w, r, err)
@@ -42,10 +40,10 @@ func Post(cs model.Challenges, ss model.Submissions, us model.Users) httprouter.
 }
 
 // find a challenge given the value of requested ID string
-func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
+func findChallenge(cs model.Challenges, id string) (*model.Challenge, error) {
 	cid, err := strconv.Atoi(id)
 	if err != nil {
-		return model.Challenge{}, err
+		return nil, err
 	}
 	return cs.Find(cid)
 }

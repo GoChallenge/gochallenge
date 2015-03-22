@@ -13,7 +13,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type writerFunc func(error, http.ResponseWriter, model.Challenge) error
+type writerFunc func(error, http.ResponseWriter, *model.Challenge) error
 
 const gogetMeta = `<meta name="go-import" content="%s git %s">`
 
@@ -37,7 +37,7 @@ func Get(cs model.Challenges) httprouter.Handle {
 }
 
 // find a challenge given the value if requested ID string
-func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
+func findChallenge(cs model.Challenges, id string) (*model.Challenge, error) {
 	idx := strings.Replace(id, "challenge-", "", 1)
 
 	if idx == "current" {
@@ -45,7 +45,7 @@ func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
 	} else if cid, err := strconv.Atoi(idx); err == nil {
 		return cs.Find(cid)
 	} else {
-		return model.Challenge{}, err
+		return nil, err
 	}
 }
 
@@ -58,7 +58,7 @@ func responder(r *http.Request) writerFunc {
 }
 
 // render a challenge in a way interpretable by go get tool
-func gogeter(err error, w http.ResponseWriter, c model.Challenge) error {
+func gogeter(err error, w http.ResponseWriter, c *model.Challenge) error {
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func gogeter(err error, w http.ResponseWriter, c model.Challenge) error {
 }
 
 // render a challenge as json
-func jsonifier(err error, w http.ResponseWriter, c model.Challenge) error {
+func jsonifier(err error, w http.ResponseWriter, c *model.Challenge) error {
 	if err != nil {
 		return err
 	}

@@ -45,6 +45,6 @@ func (s *Submission) Hydrate(cs Challenges) error {
 	if err != nil {
 		return err
 	}
-	s.Challenge = &c
+	s.Challenge = c
 	return nil
 }

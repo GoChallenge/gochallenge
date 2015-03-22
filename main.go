@@ -16,7 +16,7 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	cs := mock.NewChallenges()
-	cs.Add(model.Challenge{
+	c0 := &model.Challenge{
 		ID:     mock.CurrentID - 1,
 		Name:   "Go Challenge 0 - That Did Not Exist",
 		URL:    "http://golang-challenge.com/go-challenge0/",
@@ -28,8 +28,8 @@ func main() {
 		},
 		Start: time.Date(2015, 2, 1, 0, 0, 0, 0, time.UTC),
 		End:   time.Date(2015, 2, 14, 0, 0, 0, 0, time.UTC),
-	})
-	cs.Add(model.Challenge{
+	}
+	c1 := &model.Challenge{
 		ID:     mock.CurrentID,
 		Name:   "Go Challenge 1 - Drum Machine",
 		URL:    "http://golang-challenge.com/go-challenge1/",
@@ -41,7 +41,9 @@ func main() {
 		},
 		Start: time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
 		End:   time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
-	})
+	}
+	cs.Add(c0)
+	cs.Add(c1)
 
 	us := mock.NewUsers()
 	ss := mock.NewSubmissions()

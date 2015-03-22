@@ -15,7 +15,7 @@ func List(cs model.Challenges) httprouter.Handle {
 		ps httprouter.Params) {
 
 		cx, err := cs.All()
-		err = writeChallenges(err, w, &cx)
+		err = writeChallenges(err, w, cx)
 
 		if err != nil {
 			write.Error(w, r, err)
@@ -23,7 +23,7 @@ func List(cs model.Challenges) httprouter.Handle {
 	}
 }
 
-func writeChallenges(err error, w http.ResponseWriter, cx *[]model.Challenge) error {
+func writeChallenges(err error, w http.ResponseWriter, cx []*model.Challenge) error {
 	if err != nil {
 		return err
 	}

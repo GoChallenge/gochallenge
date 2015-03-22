@@ -27,7 +27,7 @@ func TestPostMultipart(t *testing.T) {
 		ID:     1,
 		Status: model.Open,
 	}
-	cs.Add(c0)
+	cs.Add(&c0)
 
 	s0 := model.Submission{
 		ID: "1",
@@ -129,7 +129,7 @@ func TestPostWithInvalidKey(t *testing.T) {
 		ID:     1,
 		Status: model.Open,
 	}
-	cs.Add(c0)
+	cs.Add(&c0)
 	us := mock.NewUsers()
 	a := api.New(api.Config{
 		Challenges: &cs,

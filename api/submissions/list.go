@@ -16,7 +16,7 @@ func List(cs model.Challenges, ss model.Submissions) httprouter.Handle {
 		var sx []*model.Submission
 
 		c, err := findChallenge(cs, ps.ByName("id"))
-		sx, err = listSubmissions(err, ss, &c)
+		sx, err = listSubmissions(err, ss, c)
 		err = writeSubmissions(err, w, sx)
 
 		if err != nil {
