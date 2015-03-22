@@ -3,7 +3,6 @@ package auth_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/gochallenge/gochallenge/api"
@@ -13,7 +12,7 @@ import (
 )
 
 func TestGetGithub(t *testing.T) {
-	gh := model.NewGithub()
+	gh := mock.NewGithub()
 	a := api.New(api.Config{
 		Github: &gh,
 	})
@@ -31,12 +30,7 @@ func TestGetGithub(t *testing.T) {
 	require.Equal(t, "302 Found", res.Status)
 
 	l := res.Header.Get("Location")
-	require.Contains(t, l, "https://github.com/login/oauth/authorize")
-
-	u, _ := url.ParseRequestURI(l)
-	q := u.Query()
-	require.Equal(t, "user:email", q.Get("scope"))
-	require.NotEmpty(t, q.Get("state"))
+	require.NotEmpty(t, l)
 }
 
 func TestVerifyNewGithubUser(t *testing.T) {

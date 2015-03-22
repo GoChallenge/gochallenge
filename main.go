@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gochallenge/gochallenge/api"
+	"github.com/gochallenge/gochallenge/github"
 	"github.com/gochallenge/gochallenge/mock"
 	"github.com/gochallenge/gochallenge/model"
 )
@@ -44,7 +45,7 @@ func main() {
 
 	us := mock.NewUsers()
 	ss := mock.NewSubmissions()
-	gh := model.NewGithub()
+	gh := github.NewClient()
 	a := api.New(api.Config{
 		Challenges:  &cs,
 		Submissions: &ss,
