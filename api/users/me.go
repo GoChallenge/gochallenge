@@ -12,7 +12,7 @@ func Me(us model.Users) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		ps httprouter.Params) {
 
-		apiKey := r.Header.Get("ApiKey")
+		apiKey := r.Header.Get("Auth-ApiKey")
 		u, err := us.FindByAPIKey(apiKey)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
