@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gochallenge/gochallenge/model"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -40,4 +41,23 @@ func TestChallengeMarshal(t *testing.T) {
 	err = json.Unmarshal(b, &c1)
 	require.NoError(t, err, "Challenge JSON unmarshalling failed")
 	require.Equal(t, c, c1, "Challenge JSON unmarshalled incorrectly")
+}
+
+func TestChallengeCurrent(t *testing.T) {
+	day := 24 * time.Hour
+
+	assert.True(t, model.Challenge{
+		Start: time.Now().Add(-day),
+		End:   time.Now().Add(day),
+	}.Current(), "current challenge reported as not current")
+
+	assert.False(t, model.Challenge{
+		Start: time.Now().Add(day),
+		End:   time.Now().Add(2 * day),
+	}.Current(), "future challenge reported as current")
+
+	assert.False(t, model.Challenge{
+		Start: time.Now().Add(-2 * day),
+		End:   time.Now().Add(-day),
+	}.Current(), "past challenge reported as current")
 }

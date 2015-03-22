@@ -27,3 +27,9 @@ type Challenge struct {
 	Start  time.Time `json:"start"`
 	End    time.Time `json:"end"`
 }
+
+// Current status of the challenge
+func (ch Challenge) Current() bool {
+	now := time.Now()
+	return ch.Start.Before(now) && ch.End.After(now)
+}

@@ -6,43 +6,12 @@ import (
 	"github.com/gochallenge/gochallenge/mock"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/gochallenge/gochallenge/model/spec"
-	"github.com/stretchr/testify/require"
 )
-
-func TestChallengeMockRepo2(t *testing.T) {
-	cs := mock.NewChallenges()
-	spec.MustBehaveLikeChallenges(t, &cs)
-}
 
 func TestChallengeMockRepo(t *testing.T) {
 	cs := mock.NewChallenges()
-	c1 := model.Challenge{
-		ID: 123,
-	}
-	cs.Add(c1)
-
-	// Search for First should return the challenge data
-	c, err := cs.Find(c1.ID)
-	require.NoError(t, err, "existing challenge lookup should not error")
-	require.Equal(t, c, c1, "existing challenge should be returned")
-
-	// Current challenge should return an error, as it doesn't exist
-	c, err = cs.Find(mock.CurrentID)
-	require.Error(t, err, "unknown challenge lookup should error")
-
-	// Current challenge should return the correct one, after it has
-	// been added
-	c0 := model.Challenge{
+	cur := model.Challenge{
 		ID: mock.CurrentID,
 	}
-	cs.Add(c0)
-	c, err = cs.Find(c0.ID)
-	require.NoError(t, err, "current challenge lookup should not error")
-	require.Equal(t, c, c0, "current challenge should be returned")
-
-	// All should return all added challenges
-	cx, err := cs.All()
-	require.NoError(t, err, "all challenges returned an error")
-	require.Equal(t, []model.Challenge{c1, c0}, cx,
-		"all challenges not returned correctly")
+	spec.MustBehaveLikeChallenges(t, &cs, &cur)
 }
