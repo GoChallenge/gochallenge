@@ -32,7 +32,7 @@ func server(cfg Config) *httprouter.Router {
 		submissions.List(cfg.Challenges, cfg.Submissions))
 	r.GET("/v1/submissions/:id/download", submissions.Download(cfg.Submissions))
 	r.POST("/v1/challenges/:id/submissions",
-		submissions.Post(cfg.Challenges, cfg.Submissions))
+		submissions.Post(cfg.Challenges, cfg.Submissions, cfg.Users))
 	r.GET("/v1/auth/github", auth.GithubInit())
 	r.GET("/v1/auth/github_verify", auth.GithubVerify(cfg.Users))
 	r.GET("/v1/users/:id", users.Get(cfg.Users))

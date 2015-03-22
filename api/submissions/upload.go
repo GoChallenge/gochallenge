@@ -19,17 +19,20 @@ import (
 )
 
 // Post new sumission
-func Post(cs model.Challenges, ss model.Submissions) httprouter.Handle {
+func Post(cs model.Challenges, ss model.Submissions, us model.Users) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		ps httprouter.Params) {
 		var (
 			c   model.Challenge
 			s   model.Submission
+			u   *model.User
 			err error
 		)
+
 		c, err = findChallenge(cs, ps.ByName("id"))
+		err = verifyUser(err, r, us, &u)
 		err = readSubmission(err, &s, r)
-		err = storeSubmission(err, ss, &s)
+		err = storeSubmission(err, ss, &s, u)
 
 		s.Challenge = &c
 		err = writeSubmission(err, w, s)
@@ -45,6 +48,15 @@ func findChallenge(cs model.Challenges, id string) (model.Challenge, error) {
 		return model.Challenge{}, err
 	}
 	return cs.Find(cid)
+}
+
+func verifyUser(err error, r *http.Request, us model.Users, u **model.User) error {
+	if err != nil {
+		return err
+	}
+
+	*u, err = us.FindByAPIKey(r.Header.Get("Auth-ApiKey"))
+	return err
 }
 
 func readSubmission(err error, s *model.Submission, r *http.Request) error {
@@ -153,10 +165,11 @@ func writeSubmission(err error, w http.ResponseWriter,
 	return json.NewEncoder(w).Encode(s)
 }
 
-func storeSubmission(err error, ss model.Submissions, s *model.Submission) error {
+func storeSubmission(err error, ss model.Submissions, s *model.Submission, u *model.User) error {
 	if err != nil {
 		return err
 	}
+	s.User = u
 	s.Created = time.Now().UTC()
 	return ss.Add(s)
 }
