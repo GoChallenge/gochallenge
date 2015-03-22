@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gochallenge/gochallenge/mock"
 	"github.com/gochallenge/gochallenge/model"
@@ -21,13 +22,15 @@ func TestSubmissionMarshal(t *testing.T) {
 		ID:        "1234-abcde",
 		Type:      model.LvlAnonymous,
 		Challenge: c,
+		Created:   time.Date(2015, 3, 1, 10, 0, 0, 0, time.UTC),
 	}
 	js := strings.Replace(`
 {
 "id":"1234-abcde",
 "user":null,
 "challenge_id":10,
-"type":"anonymous"
+"type":"anonymous",
+"created":"2015-03-01T10:00:00Z"
 }
 `, "\n", "", -1)
 

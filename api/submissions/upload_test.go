@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -20,6 +21,7 @@ import (
 func TestPostMultipart(t *testing.T) {
 	ss := mock.NewSubmissions()
 	cs := mock.NewChallenges()
+	us := mock.NewUsers()
 
 	c0 := model.Challenge{
 		ID:     1,
@@ -32,9 +34,16 @@ func TestPostMultipart(t *testing.T) {
 	}
 	ss.Add(&s0)
 
+	u0 := model.User{
+		ID:     1234,
+		APIKey: "c001c0ffee",
+	}
+	us.Add(&u0)
+
 	a := api.New(api.Config{
 		Challenges:  &cs,
 		Submissions: &ss,
+		Users:       &us,
 	})
 	ts := httptest.NewServer(a)
 
@@ -56,7 +65,7 @@ dC50eHRVVAUAA0rpBFV1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEAAQBOAAAARwAAAAAA
 --%[1]s--
 `, bnd)
 	buf := strings.NewReader(data)
-	res, err := http.Post(ts.URL+path, "multipart/related; boundary="+bnd, buf)
+	res, err := requestAsUser(t, &u0, ts.URL+path, bnd, buf)
 	defer res.Body.Close()
 
 	require.NoError(t, err)
@@ -112,4 +121,16 @@ func TestPostToWrongChallenge(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, http.StatusNotFound, res.StatusCode)
+}
+
+func requestAsUser(t *testing.T, u *model.User, uri string, bnd string,
+	body io.Reader) (*http.Response, error) {
+
+	r, err := http.NewRequest("POST", uri, body)
+	require.NoError(t, err)
+	r.Header.Set("Content-Type", "multipart/related; boundary="+bnd)
+	r.Header.Set("Auth-ApiKey", u.APIKey)
+
+	client := &http.Client{}
+	return client.Do(r)
 }
