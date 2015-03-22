@@ -7,7 +7,7 @@ import "net/http"
 type GithubAPI interface {
 	AuthURL(string) string
 	NewClientWithToken(string) (*http.Client, error)
-	User(*http.Client) (GithubUser, error)
+	User(*http.Client) (*GithubUser, error)
 }
 
 // GithubUser represents a user of Github.

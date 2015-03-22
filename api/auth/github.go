@@ -15,19 +15,19 @@ const authResultURL = "/#api_key=%s"
 const authErrorURL = "/#error=%s"
 
 // GithubInit initiates github authentication workflow
-func GithubInit(gh *model.GithubAPI) httprouter.Handle {
+func GithubInit(gh model.GithubAPI) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		_ httprouter.Params) {
 		// TODO: write state into a signed cookie, and validate it in GithubVerify.
 		// see http://godoc.org/golang.org/x/oauth2#Config.AuthCodeURL for details
-		url := (*gh).AuthURL(state())
+		url := gh.AuthURL(state())
 		http.RedirectHandler(url, http.StatusFound).ServeHTTP(w, r)
 	}
 }
 
 // GithubVerify verifies github callback information, and inits
 // user record
-func GithubVerify(gh *model.GithubAPI, us model.Users) httprouter.Handle {
+func GithubVerify(gh model.GithubAPI, us model.Users) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		_ httprouter.Params) {
 		var (
@@ -56,17 +56,18 @@ func state() string {
 	return fmt.Sprintf("%x", md5.Sum(b))
 }
 
-func getGithubUser(gh *model.GithubAPI, r *http.Request) (model.GithubUser, error) {
+func getGithubUser(gh model.GithubAPI, r *http.Request) (*model.GithubUser, error) {
 	r.ParseForm()
-	gc, err := (*gh).NewClientWithToken(r.FormValue("code"))
+	gc, err := gh.NewClientWithToken(r.FormValue("code"))
 	if err != nil {
-		return model.GithubUser{}, err
+		return nil, err
 	}
 
-	return (*gh).User(gc)
+	return gh.User(gc)
 }
 
-func setupUser(err error, us model.Users, gu model.GithubUser) (*model.User, error) {
+func setupUser(err error, us model.Users,
+	gu *model.GithubUser) (*model.User, error) {
 	var u *model.User
 
 	if err != nil {

@@ -58,16 +58,16 @@ func (gh *github) NewClientWithToken(t string) (*http.Client, error) {
 }
 
 // User details for the user that is currently authenticated
-func (gh github) User(hc *http.Client) (model.GithubUser, error) {
+func (gh github) User(hc *http.Client) (*model.GithubUser, error) {
 	var gu model.GithubUser
 
 	res, err := hc.Get(githubAPIUser)
 	defer res.Body.Close()
 
 	if err != nil {
-		return gu, err
+		return nil, err
 	}
 
 	err = json.NewDecoder(res.Body).Decode(&gu)
-	return gu, err
+	return &gu, err
 }

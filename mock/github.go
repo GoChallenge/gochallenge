@@ -30,12 +30,12 @@ func (gh *Github) NewClientWithToken(t string) (*http.Client, error) {
 
 // User returns currently configured GithubUser to fake authentication
 // process, or ErrGithubAPIError if the users hasn't been set
-func (gh *Github) User(hc *http.Client) (model.GithubUser, error) {
+func (gh *Github) User(hc *http.Client) (*model.GithubUser, error) {
 	if gh.user == nil {
-		return model.GithubUser{}, model.ErrGithubAPIError
+		return nil, model.ErrGithubAPIError
 	}
 
-	return (*gh.user), nil
+	return gh.user, nil
 }
 
 // SetUser to be considered a currently authenticated user for mock client

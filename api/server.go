@@ -34,8 +34,8 @@ func server(cfg Config) *httprouter.Router {
 	r.GET("/v1/submissions/:id/download", submissions.Download(cfg.Submissions))
 	r.POST("/v1/challenges/:id/submissions",
 		submissions.Post(cfg.Challenges, cfg.Submissions, cfg.Users))
-	r.GET("/v1/auth/github", auth.GithubInit(&cfg.Github))
-	r.GET("/v1/auth/github_verify", auth.GithubVerify(&cfg.Github, cfg.Users))
+	r.GET("/v1/auth/github", auth.GithubInit(cfg.Github))
+	r.GET("/v1/auth/github_verify", auth.GithubVerify(cfg.Github, cfg.Users))
 	r.GET("/v1/users/:id", users.Get(cfg.Users))
 	r.GET("/v1/user", users.Me(cfg.Users))
 	r.GET("/code/:id", challenges.Get(cfg.Challenges))
