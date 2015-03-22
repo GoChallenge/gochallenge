@@ -31,17 +31,7 @@ func (us *Users) Add(u *model.User) error {
 	return nil
 }
 
-func (us *Users) Update(u *model.User) error {
-	if _, ok := us.index[u.ID]; !ok {
-		return errors.New("Unknown user ID")
-	}
-	us.index[u.ID] = u
-	us.indexAPIKey[u.APIKey] = u
-
-	return nil
-}
-
-// Find a user in the collection by its id.
+// FindByID searches for a user in the collection by its id.
 func (us *Users) FindByID(id int) (*model.User, error) {
 	var (
 		u  *model.User
@@ -54,7 +44,7 @@ func (us *Users) FindByID(id int) (*model.User, error) {
 	return u, nil
 }
 
-// Find a user in the collection by its API Key.
+// FindByAPIKey finds a user in the collection by its API Key.
 func (us *Users) FindByAPIKey(key string) (*model.User, error) {
 	var (
 		u  *model.User
@@ -65,4 +55,14 @@ func (us *Users) FindByAPIKey(key string) (*model.User, error) {
 		return nil, model.ErrNotFound
 	}
 	return u, nil
+}
+
+// FindByGithubID finds a user in the collection by its Github ID
+func (us *Users) FindByGithubID(id int) (*model.User, error) {
+	for _, u := range us.index {
+		if u.GithubID == id {
+			return u, nil
+		}
+	}
+	return nil, model.ErrNotFound
 }

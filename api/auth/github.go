@@ -2,109 +2,49 @@ package auth
 
 import (
 	"crypto/md5"
-	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
-	"os"
-	"strings"
+	"net/url"
 
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
-	"golang.org/x/oauth2"
 )
 
-const githubOAuthURL = "https://github.com/login/oauth/authorize"
-const githubOTokenURL = "https://github.com/login/oauth/access_token"
-const githubAPIUser = "https://api.github.com/user"
-const githubScope = "user:email"
+const authResultURL = "/#api_key=%s"
+const authErrorURL = "/#error=%s"
 
 // GithubInit initiates github authentication workflow
-func GithubInit() httprouter.Handle {
+func GithubInit(gh *model.GithubAPI) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		_ httprouter.Params) {
-		url := githubClient().AuthCodeURL(state())
+		// TODO: write state into a signed cookie, and validate it in GithubVerify.
+		// see http://godoc.org/golang.org/x/oauth2#Config.AuthCodeURL for details
+		url := (*gh).AuthURL(state())
 		http.RedirectHandler(url, http.StatusFound).ServeHTTP(w, r)
 	}
 }
 
 // GithubVerify verifies github callback information, and inits
 // user record
-func GithubVerify(us model.Users) httprouter.Handle {
+func GithubVerify(gh *model.GithubAPI, us model.Users) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		_ httprouter.Params) {
 		var (
-			res *http.Response
 			u   *model.User
+			loc string
 		)
 
-		r.ParseForm()
-		hc, err := githubClientWithToken(r.FormValue("code"))
-		if err == nil {
-			res, err = hc.Get(githubAPIUser)
-		}
+		gu, err := getGithubUser(gh, r)
+		u, err = setupUser(err, us, gu)
 
-		gu := new(model.GitHubUser)
-		if err == nil {
-			err = json.NewDecoder(res.Body).Decode(gu)
-		}
-
-		if u, err = us.FindByID(gu.ID); err != nil {
-			// Add new user.
-			u = gu.ToUser()
-			err = us.Add(u)
+		if err != nil {
+			loc = fmt.Sprintf(authErrorURL, url.QueryEscape(err.Error()))
 		} else {
-			// Update user from GitHub.
-			u.Name = gu.Name
-			u.Email = gu.Email
-			u.AvatarURL = gu.AvatarURL
-			err = us.Update(u)
+			loc = fmt.Sprintf(authResultURL, u.APIKey)
 		}
 
-		if err == nil {
-			// @TODO(Akeda)
-			//
-			// Make url dynamic based on the `url_redirect` query string before
-			// authorising with GitHub.
-			//
-			// Before that, make sure HTTP router has web handler in addition
-			// to API handlers
-			url := fmt.Sprintf("/#api_key=%s", u.APIKey)
-			http.RedirectHandler(url, http.StatusFound).ServeHTTP(w, r)
-			return
-		}
-
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf("%s", err)))
-		return
-	}
-}
-
-func githubClientWithToken(c string) (*http.Client, error) {
-	var (
-		tok *oauth2.Token
-		err error
-	)
-	gh := githubClient()
-	if tok, err = gh.Exchange(oauth2.NoContext, c); err != nil {
-		return nil, err
-	}
-	if !tok.Valid() {
-		return nil, fmt.Errorf("INVALID TOKEN: %+v", tok)
-	}
-
-	return gh.Client(oauth2.NoContext, tok), nil
-}
-
-func githubClient() *oauth2.Config {
-	return &oauth2.Config{
-		ClientID:     os.Getenv("GITHUB_CLIENTID"),
-		ClientSecret: os.Getenv("GITHUB_SECRET"),
-		Scopes:       strings.Split(githubScope, ","),
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  githubOAuthURL,
-			TokenURL: githubOTokenURL,
-		},
+		http.RedirectHandler(loc, http.StatusFound).ServeHTTP(w, r)
 	}
 }
 
@@ -114,4 +54,42 @@ func state() string {
 		b[i] = byte(rand.Intn(256))
 	}
 	return fmt.Sprintf("%x", md5.Sum(b))
+}
+
+func getGithubUser(gh *model.GithubAPI, r *http.Request) (model.GithubUser, error) {
+	r.ParseForm()
+	gc, err := (*gh).NewClientWithToken(r.FormValue("code"))
+	if err != nil {
+		return model.GithubUser{}, err
+	}
+
+	return (*gh).User(gc)
+}
+
+func setupUser(err error, us model.Users, gu model.GithubUser) (*model.User, error) {
+	var u *model.User
+
+	if err != nil {
+		return u, err
+	}
+
+	if u, err = us.FindByGithubID(gu.ID); err == nil {
+		// found existing user record, just return it
+		return u, nil
+	}
+
+	if err != model.ErrNotFound {
+		// got an error that does not indicate a missing user - fail
+		return nil, err
+	}
+
+	// Couldn't find a user - add a new one
+	if u, err = model.NewUser(); err != nil {
+		return u, err
+	}
+
+	gu.Populate(u)
+	err = us.Add(u)
+
+	return u, err
 }

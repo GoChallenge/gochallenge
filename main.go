@@ -43,12 +43,13 @@ func main() {
 	})
 
 	us := mock.NewUsers()
-
 	ss := mock.NewSubmissions()
+	gh := model.NewGithub()
 	a := api.New(api.Config{
 		Challenges:  &cs,
 		Submissions: &ss,
 		Users:       &us,
+		Github:      &gh,
 	})
 	log.Fatal(http.ListenAndServe(":8081", a))
 }

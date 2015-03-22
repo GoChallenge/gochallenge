@@ -2,16 +2,23 @@ package model
 
 import (
 	"crypto/rand"
+	"crypto/sha1"
 	"fmt"
-	"io"
 )
 
 // Users collection interface
 type Users interface {
 	Add(*User) error
-	Update(*User) error
 	FindByID(int) (*User, error)
+	FindByGithubID(int) (*User, error)
 	FindByAPIKey(string) (*User, error)
+}
+
+// NewUser generates and populates with basic details new user record
+func NewUser() (*User, error) {
+	u := &User{}
+	err := u.ResetToken()
+	return u, err
 }
 
 // User of a challenge
@@ -20,55 +27,29 @@ type User struct {
 	Name        string `json:"name"`
 	Email       string `json:"email,omitempty"`
 	AvatarURL   string `json:"avatar_url"`
-	GitHubURL   string `json:"github_url"`
-	GitHubLogin string `json:"github_login"`
+	GithubID    int    `json:"-"`
+	GithubURL   string `json:"github_url"`
+	GithubLogin string `json:"github_login"`
 	APIKey      string `json:"-"`
 }
 
-// GitHubUser represents user of GitHub.
-type GitHubUser struct {
-	ID        int    `json:"id"`
-	Login     string `json:"login"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	AvatarURL string `json:"avatar_url"`
-	HTMLURL   string `json:"html_url"`
+// ResetToken rewrites API key on the user record
+func (u *User) ResetToken() error {
+	var err error
+
+	u.APIKey, err = generateToken()
+	return err
 }
 
-func (gu *GitHubUser) ToUser() *User {
-	return &User{
-		ID:          gu.ID,
-		Name:        gu.Name,
-		Email:       gu.Email,
-		AvatarURL:   gu.AvatarURL,
-		GitHubURL:   gu.HTMLURL,
-		GitHubLogin: gu.Login,
-		APIKey:      fmt.Sprintf("%d-%s", gu.ID, generateToken()),
-	}
-}
+func generateToken() (string, error) {
+	const length = sha1.BlockSize
 
-var (
-	chars  = []byte("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
-	length = 40
-)
-
-func generateToken() string {
 	b := make([]byte, length)
-	r := make([]byte, length+(length/4)) // storage for random bytes.
-	clen := byte(len(chars))
-	maxrb := byte(256 - (256 % len(chars)))
-	i := 0
-	for {
-		io.ReadFull(rand.Reader, r)
-		for _, c := range r {
-			if c >= maxrb {
-				continue
-			}
-			b[i] = chars[c%clen]
-			i++
-			if i == length {
-				return string(b)
-			}
-		}
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", ErrCryptoFailure
 	}
+
+	s1 := sha1.Sum(b)
+	return fmt.Sprintf("%x", s1), nil
 }
