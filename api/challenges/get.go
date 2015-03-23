@@ -2,7 +2,6 @@ package challenges
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -63,7 +62,7 @@ func gogeter(err error, w http.ResponseWriter, c *model.Challenge) error {
 		return err
 	}
 	if c.Git == "" {
-		return errors.New("challenge does not have git remote")
+		return model.ErrNoRemote
 	}
 
 	s := fmt.Sprintf(gogetMeta, c.Import, c.Git)

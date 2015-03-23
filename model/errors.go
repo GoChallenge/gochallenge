@@ -13,15 +13,17 @@ const (
 	ErrGithubAPIError
 	ErrAuthFailure
 	ErrNotImplemented
+	ErrDuplicateRecord
 )
 
 var errmsgs = map[Error]string{
-	ErrNotFound:       "Not found",
-	ErrNoRemote:       "Challenge does not have git remote",
-	ErrCryptoFailure:  "Error in cryptographical operation",
-	ErrGithubAPIError: "Error communicating with Github API",
-	ErrAuthFailure:    "Invalid authentication",
-	ErrNotImplemented: "Not implemented",
+	ErrNotFound:        "Not found",
+	ErrNoRemote:        "Challenge does not have git remote",
+	ErrCryptoFailure:   "Error in cryptographical operation",
+	ErrGithubAPIError:  "Error communicating with Github API",
+	ErrAuthFailure:     "Invalid authentication",
+	ErrNotImplemented:  "Not implemented",
+	ErrDuplicateRecord: "Record already exists",
 }
 
 func (e Error) Error() string {
