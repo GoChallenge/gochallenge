@@ -89,7 +89,7 @@ func testSubmissionData(t *testing.T, sx *model.Submission, ex map[string]string
 	var b []byte
 
 	// Test that the data can be unzipped
-	z, err := zip.NewReader(bytes.NewReader(sx.Data), int64(len(sx.Data)))
+	z, err := zip.NewReader(bytes.NewReader(*sx.Data), int64(len(*sx.Data)))
 	require.NoError(t, err, "zip reader init failed")
 	files := map[string]string{}
 

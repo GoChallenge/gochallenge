@@ -20,10 +20,11 @@ func TestDownloadSubmission(t *testing.T) {
 	})
 	ts := httptest.NewServer(a)
 
+	d0 := []byte("badc0ffee")
 	s0 := model.Submission{
 		ID:   "0000-abcd",
 		Type: model.LvlNormal,
-		Data: []byte("badc0ffee"),
+		Data: &d0,
 	}
 	ss.Add(&s0)
 
@@ -39,7 +40,7 @@ func TestDownloadSubmission(t *testing.T) {
 	b, err := ioutil.ReadAll(res.Body)
 	require.NoError(t, err)
 
-	require.Equal(t, string(s0.Data), string(b))
+	require.Equal(t, string(*s0.Data), string(b))
 }
 
 func TestDownloadSubmissionMissing(t *testing.T) {

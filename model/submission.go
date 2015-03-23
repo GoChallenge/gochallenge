@@ -21,7 +21,7 @@ type Submission struct {
 	ChallengeID int           `json:"challenge_id"`
 	Type        Participation `json:"type"`
 	Challenge   *Challenge    `json:"-"`
-	Data        []byte        `json:"-"`
+	Data        *[]byte       `json:"-"`
 	Created     time.Time     `json:"created"`
 }
 

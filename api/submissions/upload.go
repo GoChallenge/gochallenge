@@ -154,7 +154,7 @@ func parseZip(s *model.Submission, p *multipart.Part) error {
 	if err != nil {
 		return err
 	}
-	s.Data = b
+	s.Data = &b
 
 	return nil
 }
