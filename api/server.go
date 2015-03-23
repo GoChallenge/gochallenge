@@ -14,8 +14,8 @@ import (
 	"github.com/morhekil/mw"
 )
 
-const assetsPath = "web/assets"
-const indexPath = "web/index.html"
+const assetsPath = "web/dist/assets"
+const indexPath = "web/dist/index.html"
 
 // Config of the API setup
 type Config struct {
