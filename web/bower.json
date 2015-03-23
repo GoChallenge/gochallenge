@@ -1,0 +1,28 @@
+{
+  "name": "gochallenge",
+  "version": "0.0.1",
+  "homepage": "https://github.com/GoChallenge/gochallenge",
+  "authors": [
+    "gochallenge authors"
+  ],
+  "description": "App to run Go challenge",
+  "main": "assets/js/main.js",
+  "keywords": [
+    "gochallenge"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "assets/js/libs",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "~1.1.2",
+    "bootstrap": "~3.3.4",
+    "jquery": "~2.1.3"
+  }
+}

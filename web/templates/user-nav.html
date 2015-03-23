@@ -1,0 +1,17 @@
+<% if (!user) { %>
+	<a href="/v1/auth/github">Login</a>
+<% } else { %>
+	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+		<img src="<%- user.avatar_url %>" alt="<%- user.name %>" width="20" height="20" class="avatar hidden-xs">
+		<span><%- user.name %></span>
+		<b class="caret"></b>
+	</a>
+	<ul class="dropdown-menu">
+		<li>
+			<a href="#profile" class="profile">Profile</a>
+		</li>
+		<li>
+			<a href="#logout" class="logout">Logout</a>
+		</li>
+	</ul>
+<% } %>

@@ -1,0 +1,24 @@
+<h2>My Profile</h2>
+<div class="media">
+	<div class="media-left">
+		<img src="<%- user.avatar_url %>" alt="<%- user.name %>" width="150" class="media-object img-circle">
+	</div>
+	<div class="media-body">
+		<dl class="profile-properties">
+			<dt>Name</dt>
+			<dd><%- user.name %></dd>
+			<dt>Email</dt>
+			<dd><%- user.email %></dd>
+			<dt>GitHub</dt>
+			<dd><a href="<%- user.github_url %>" target="blank"><%- user.github_login %></a></dd>
+
+			<dt>API Key</dt>
+			<dd>
+				<code style="word-wrap: break-word"><%- user.api_key %></code>
+				<br>
+				<button type="button" class="btn btn-danger reset-api-key">Reset API Key</button>
+			</dd>
+		</dl>
+	</div>
+</div>
+<h2>My Submissions</h2>
