@@ -1,0 +1,33 @@
+{
+	"name": "GoChallenge",
+	"description": "App to run Go challenge",
+	"version": "0.0.1",
+	"homepage": "https://github.com/GoChallenge/gochallenge",
+	"author": {
+		"name": "Akeda Bagus",
+		"url": "http://gedex.web.id"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/GoChallenge/gochallenge.git"
+	},
+	"bugs": {
+		"url": "https://github.com/GoChallenge/gochallenge/issues"
+	},
+	"licenses": [
+		{
+			"type": "MIT",
+			"url": "https://github.com/GoChallenge/gochallenge/raw/master/LICENSE"
+		}
+	],
+	"devDependencies": {
+		"grunt": "~0.4.1",
+		"grunt-contrib-jshint": "~0.8.0",
+		"grunt-contrib-uglify": "^0.4.0",
+		"grunt-contrib-cssmin": "~0.7.0",
+		"grunt-contrib-copy": "~0.5.0",
+		"grunt-contrib-clean": "~0.5.0",
+		"grunt-processhtml": "~0.3.0",
+		"grunt-contrib-watch": "^0.6.1"
+	}
+}

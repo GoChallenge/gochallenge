@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Go Challenge</title>
+
+	<!-- build:css inline -->
+	<link href="assets/css/all.min.css" rel="stylesheet">
+	<!-- /build -->
+</head>
+<body>
+
+<div class="container">
+	<div class="header clearfix">
+		<nav>
+			<ul class="nav nav-pills pull-right">
+				<li role="presentation" class="active"><a href="/">Home</a></li>
+				<li role="presentation" class="dropdown user-nav"><a href="http://localhost:8081/v1/auth/github">Login</a></li>
+			</ul>
+		</nav>
+		<h3 class="text-muted">Go Challenge</h3>
+	</div><!-- /.header -->
+
+	<div id="content"></div>
+
+	<footer class="footer">
+		<p>&copy; GoChallenge 2015</p>
+	</footer>
+
+</div><!-- /.container -->
+
+<!-- build:js inline -->
+<script src="assets/js/all.min.js" type="text/javascript"></script>
+<!-- /build -->
+
+
+<script type="text/html" id="user-nav-tpl">
+<!-- build:include templates/user-nav.html --><!-- /build -->
+</script>
+
+<script type="text/html" id="profile-tpl">
+<!-- build:include templates/profile.html --><!-- /build -->
+</script>
+
+<script type="text/html" id="home-tpl">
+<!-- build:include templates/home.html --><!-- /build -->
+</script>
+
+<script type="text/html" id="current-challenge-tpl">
+<!-- build:include templates/home-challenge-current.html --><!-- /build -->
+</script>
+
+<script type="text/html" id="past-challenge-item-tpl">
+<!-- build:include templates/home-challenge-past.html --><!-- /build -->
+</script>
+
+<script type="text/html" id="submission-item-tpl">
+<!-- build:include templates/submission.html --><!-- /build -->
+</script>
+
+</body>
+</html>

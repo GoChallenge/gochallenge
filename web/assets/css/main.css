@@ -1,0 +1,87 @@
+body {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+.header,
+.challenges,
+.footer {
+	padding-right: 15px;
+	padding-left: 15px;
+}
+
+.header {
+	padding-bottom: 20px;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.header h3 {
+	margin-top: 0;
+	margin-bottom: 0;
+	line-height: 40px;
+}
+
+.footer {
+	padding-top: 19px;
+	text-align: center;
+	color: #666;
+	border-top: 1px solid #e5e5e5;
+}
+
+@media (min-width: 768px) {
+	.container {
+		max-width: 730px;
+	}
+}
+
+.jumbotron {
+	text-align: center;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.jumbotron .btn {
+	padding: 14px 24px;
+	font-size: 21px;
+}
+
+.challenges {
+	margin: 40px 0;
+}
+.challenges h3 {
+	padding-bottom: 15px;
+	border-bottom: 1px solid #e5e5e5;
+}
+.challenges p + h4 {
+	margin-top: 28px;
+}
+
+.past-challenges .challenge {
+	border-bottom: 1px solid #e5e5e5;
+}
+
+@media screen and (min-width: 768px) {
+	.header,
+	.challenges,
+	.footer {
+		padding-right: 0;
+		padding-left: 0;
+	}
+	.header {
+		margin-bottom: 30px;
+	}
+	.jumbotron {
+		border-bottom: 0;
+	}
+}
+
+.profile-properties {
+	padding-left: 20px;
+}
+
+.profile-properties dd {
+	margin-bottom: 10px;
+}
+
+.reset-api-key {
+	margin-top: 5px;
+}
