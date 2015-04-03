@@ -1,8 +1,6 @@
 package boltdb
 
 import (
-	"bytes"
-	"encoding/gob"
 	"strconv"
 
 	"github.com/boltdb/bolt"
@@ -26,20 +24,14 @@ func NewUsers(db *bolt.DB) (Users, error) {
 func (us *Users) Add(u *model.User) error {
 	return chain(us.db.Update,
 		validateNewUser(u),
-		writeUser(u),
+		store(bktUsers, strconv.Itoa(u.ID), u),
 	)
 }
 
 // Find returns a user record for the given ID
 func (us *Users) Find(id int) (*model.User, error) {
-	var (
-		b *[]byte
-		u model.User
-	)
-	if err := us.db.View(itoBytes(bktUsers, id, &b)); err != nil {
-		return nil, err
-	}
-	return &u, decodeUser(b, &u)
+	var u model.User
+	return &u, us.db.View(load(bktUsers, strconv.Itoa(id), &u))
 }
 
 // FindByGithubID returns a user record with the given Github ID
@@ -65,10 +57,6 @@ func (us *Users) findBy(f func(*model.User) bool) (*model.User, error) {
 	return &u, us.db.View(findUser(us, &u, f))
 }
 
-func decodeUser(b *[]byte, u *model.User) error {
-	return gob.NewDecoder(bytes.NewReader(*b)).Decode(u)
-}
-
 // validates given user record as a new record - e.g. making sure is does
 // not conflict with another existing record, etc
 func validateNewUser(u *model.User) boltf {
@@ -83,21 +71,6 @@ func validateNewUser(u *model.User) boltf {
 	}
 }
 
-// writes encoded user data into the database
-func writeUser(u *model.User) boltf {
-	return func(tx *bolt.Tx) error {
-		var b bytes.Buffer
-
-		if err := gob.NewEncoder(&b).Encode(u); err != nil {
-			return err
-		}
-		bkt := tx.Bucket(bktUsers)
-
-		k := strconv.Itoa(u.ID)
-		return bkt.Put([]byte(k), b.Bytes())
-	}
-}
-
 // find the first user that matches given finder function criteria
 func findUser(us *Users, u *model.User, f func(*model.User) bool) boltf {
 	return func(tx *bolt.Tx) error {
@@ -105,7 +78,7 @@ func findUser(us *Users, u *model.User, f func(*model.User) bool) boltf {
 		bkt := tx.Bucket(bktUsers).Cursor()
 
 		for k, v := bkt.First(); k != nil && err == nil; k, v = bkt.Next() {
-			if err = decodeUser(&v, u); err == nil && f(u) {
+			if err = decode(&v, u); err == nil && f(u) {
 				// the matching record is found, stop here
 				return nil
 			}

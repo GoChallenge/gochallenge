@@ -1,8 +1,6 @@
 package boltdb
 
 import (
-	"bytes"
-	"encoding/gob"
 	"strconv"
 
 	"github.com/boltdb/bolt"
@@ -24,25 +22,13 @@ func NewChallenges(db *bolt.DB) (Challenges, error) {
 
 // Add another challenge to the repo
 func (cs *Challenges) Add(c *model.Challenge) error {
-	var b bytes.Buffer
-	if err := gob.NewEncoder(&b).Encode(c); err != nil {
-		return err
-	}
-	err := cs.db.Update(putChallenge(c, b.Bytes()))
-	return err
+	return cs.db.Update(store(bktChallenges, strconv.Itoa(c.ID), c))
 }
 
 // Find a challenge in the repository by its id
 func (cs *Challenges) Find(id int) (*model.Challenge, error) {
-	var (
-		b    *[]byte
-		chal model.Challenge
-	)
-
-	if err := cs.db.View(itoBytes(bktChallenges, id, &b)); err != nil {
-		return nil, err
-	}
-	return &chal, decodeChal(b, &chal)
+	var chal model.Challenge
+	return &chal, cs.db.View(load(bktChallenges, strconv.Itoa(id), &chal))
 }
 
 // All challenges currently available
@@ -65,27 +51,12 @@ func (cs *Challenges) Current() (*model.Challenge, error) {
 	f := func(c *model.Challenge) bool {
 		return c.Current()
 	}
-	err := cs.db.View(findChallenge(cs, &chal, f))
-	return &chal, err
+	return &chal, cs.db.View(findChallenge(cs, &chal, f))
 }
 
 //
 // Low-level database operations
 //
-
-func decodeChal(b *[]byte, chal *model.Challenge) error {
-	return gob.NewDecoder(bytes.NewReader(*b)).Decode(chal)
-}
-
-// put encoded challenge data into the database
-func putChallenge(c *model.Challenge, b []byte) boltf {
-	return func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(bktChallenges)
-
-		k := strconv.Itoa(c.ID)
-		return bkt.Put([]byte(k), b)
-	}
-}
 
 // find the first challenge that matches given finder function criteria
 func findChallenge(cs *Challenges, chal *model.Challenge,
@@ -95,7 +66,7 @@ func findChallenge(cs *Challenges, chal *model.Challenge,
 		bkc := tx.Bucket(bktChallenges).Cursor()
 
 		for k, v := bkc.First(); k != nil && err == nil; k, v = bkc.Next() {
-			if err = decodeChal(&v, chal); err == nil && chal.Current() {
+			if err = decode(&v, chal); err == nil && f(chal) {
 				// the matching challenge is found, stop here
 				return nil
 			}
@@ -116,7 +87,7 @@ func getChallenges(chals *[]*model.Challenge) boltf {
 
 		err := bkt.ForEach(func(_, v []byte) error {
 			chal := model.Challenge{}
-			if err := decodeChal(&v, &chal); err != nil {
+			if err := decode(&v, &chal); err != nil {
 				return err
 			}
 			*chals = append(*chals, &chal)
