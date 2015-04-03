@@ -21,7 +21,8 @@ func MustBehaveLikeUsers(t *testing.T, us model.Users) {
 	require.NoError(t, err)
 	// but the second should fail with a duplicate record error
 	err = us.Add(&u1)
-	require.Equal(t, model.ErrDuplicateRecord, err)
+	require.Equal(t, model.ErrDuplicateRecord, err,
+		"adding a duplicate record did not error")
 
 	// added user record should find-able by its ID
 	ux, err := us.FindByID(u1.ID)

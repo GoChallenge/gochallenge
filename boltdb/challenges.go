@@ -4,21 +4,12 @@ import (
 	"bytes"
 	"encoding/gob"
 	"strconv"
-	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/gochallenge/gochallenge/model"
 )
 
-// Open Bolt database at the given file name
-func Open(file string) (*bolt.DB, error) {
-	opt := &bolt.Options{
-		Timeout: 1 * time.Second,
-	}
-	return bolt.Open(file, 0600, opt)
-}
-
-const bktChallenges = "Chals"
+var bktChallenges = []byte("Chals")
 
 // Challenges repository
 type Challenges struct {
@@ -27,7 +18,7 @@ type Challenges struct {
 
 // NewChallenges returns a new initialised struct of challenges
 func NewChallenges(db *bolt.DB) (Challenges, error) {
-	err := db.Update(initChallengeBucket)
+	err := db.Update(initBucket(bktChallenges))
 	return Challenges{db}, err
 }
 
@@ -48,13 +39,10 @@ func (cs *Challenges) Find(id int) (*model.Challenge, error) {
 		chal model.Challenge
 	)
 
-	if err := cs.db.View(getChallenge(id, &b)); err != nil {
+	if err := cs.db.View(itoBytes(bktChallenges, id, &b)); err != nil {
 		return nil, err
 	}
-	// bolt returns an empty result for unknown key lookup,
-	// test it here and return ErrNotFound in this case
-	err := decodeChal(b, &chal)
-	return &chal, err
+	return &chal, decodeChal(b, &chal)
 }
 
 // All challenges currently available
@@ -86,50 +74,25 @@ func (cs *Challenges) Current() (*model.Challenge, error) {
 //
 
 func decodeChal(b *[]byte, chal *model.Challenge) error {
-	// bolt returns an empty result for unknown key lookup,
-	// test it here and return ErrNotFound in this case
-	if len(*b) == 0 {
-		return model.ErrNotFound
-	}
-	err := gob.NewDecoder(bytes.NewReader(*b)).Decode(chal)
-	return err
-
-}
-
-// initialises bolt bucket for challenges
-func initChallengeBucket(tx *bolt.Tx) error {
-	_, err := tx.CreateBucketIfNotExists([]byte(bktChallenges))
-	return err
+	return gob.NewDecoder(bytes.NewReader(*b)).Decode(chal)
 }
 
 // put encoded challenge data into the database
-func putChallenge(c *model.Challenge, b []byte) func(tx *bolt.Tx) error {
+func putChallenge(c *model.Challenge, b []byte) boltf {
 	return func(tx *bolt.Tx) error {
-		bkt := tx.Bucket([]byte(bktChallenges))
+		bkt := tx.Bucket(bktChallenges)
 
 		k := strconv.Itoa(c.ID)
 		return bkt.Put([]byte(k), b)
 	}
 }
 
-// get encoded challenge data from the database
-func getChallenge(id int, b **[]byte) func(tx *bolt.Tx) error {
-	return func(tx *bolt.Tx) error {
-		bkt := tx.Bucket([]byte(bktChallenges))
-
-		k := strconv.Itoa(id)
-		v := bkt.Get([]byte(k))
-		*b = &v
-		return nil
-	}
-}
-
 // find the first challenge that matches given finder function criteria
 func findChallenge(cs *Challenges, chal *model.Challenge,
-	f func(*model.Challenge) bool) func(tx *bolt.Tx) error {
+	f func(*model.Challenge) bool) boltf {
 	return func(tx *bolt.Tx) error {
 		var err error
-		bkc := tx.Bucket([]byte(bktChallenges)).Cursor()
+		bkc := tx.Bucket(bktChallenges).Cursor()
 
 		for k, v := bkc.First(); k != nil && err == nil; k, v = bkc.Next() {
 			if err = decodeChal(&v, chal); err == nil && chal.Current() {
@@ -147,9 +110,9 @@ func findChallenge(cs *Challenges, chal *model.Challenge,
 }
 
 // get all challenges from the database
-func getChallenges(chals *[]*model.Challenge) func(tx *bolt.Tx) error {
+func getChallenges(chals *[]*model.Challenge) boltf {
 	return func(tx *bolt.Tx) error {
-		bkt := tx.Bucket([]byte(bktChallenges))
+		bkt := tx.Bucket(bktChallenges)
 
 		err := bkt.ForEach(func(_, v []byte) error {
 			chal := model.Challenge{}
