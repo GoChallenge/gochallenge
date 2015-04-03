@@ -56,6 +56,6 @@ func MustBehaveLikeUsers(t *testing.T, us model.Users) {
 	err = us.Save(&u2)
 	require.NoError(t, err)
 	// ID should be auto-generated, if not specified
-	require.NotEmpty(t, u2.ID, "User ID should be auto-generated")
+	require.NotEqual(t, u2.ID, 0, "User ID should be auto-generated")
 	require.NotEqual(t, u1.ID, u2.ID)
 }

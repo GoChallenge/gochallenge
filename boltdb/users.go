@@ -22,7 +22,7 @@ func NewUsers(db *bolt.DB) (Users, error) {
 // have its ID specified yet - it will be set to the next available value
 func (us *Users) Save(u *model.User) error {
 	return chain(us.db.Update,
-		prefillID(u),
+		prefillUser(u),
 		store(bktUsers, &u.ID, u),
 	)
 }
@@ -58,13 +58,13 @@ func (us *Users) findBy(f func(interface{}) bool) (*model.User, error) {
 
 // prefills user's ID with the next available unique value. If user already
 // has its ID set - does nothing.
-func prefillID(u *model.User) boltf {
+func prefillUser(u *model.User) boltf {
 	return func(tx *bolt.Tx) error {
 		if u.ID != 0 {
 			return nil
 		}
 		var id model.UserID
-		if err := maxKey(tx, bktUsers, &id); err != nil && err.Error() != "EOF" {
+		if err := lastKey(tx, bktUsers, &id); err != nil {
 			return err
 		}
 		u.ID = id + 1

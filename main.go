@@ -42,8 +42,8 @@ func main() {
 		Start: time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
 		End:   time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
 	}
-	cs.Add(c0)
-	cs.Add(c1)
+	cs.Save(c0)
+	cs.Save(c1)
 
 	us := mock.NewUsers()
 	ss := mock.NewSubmissions()

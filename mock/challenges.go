@@ -8,8 +8,9 @@ const CurrentID = 1
 
 // Challenges repository, mocked out as in-memory map
 type Challenges struct {
-	index map[model.ChallengeID]*model.Challenge
-	ary   []*model.Challenge
+	index  map[model.ChallengeID]*model.Challenge
+	ary    []*model.Challenge
+	lastID model.ChallengeID
 }
 
 // NewChallenges returns a new initialised struct of challenges
@@ -20,8 +21,15 @@ func NewChallenges() Challenges {
 	}
 }
 
-// Add another challenge to the mock repo
-func (cs *Challenges) Add(c *model.Challenge) error {
+// Save a challenge into the mock repo
+func (cs *Challenges) Save(c *model.Challenge) error {
+	if c.ID == 0 {
+		cs.lastID++
+		c.ID = cs.lastID
+	} else if c.ID > cs.lastID {
+		cs.lastID = c.ID
+	}
+
 	cs.ary = append(cs.ary, c)
 	cs.index[c.ID] = c
 	return nil

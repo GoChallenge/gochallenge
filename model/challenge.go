@@ -7,7 +7,7 @@ import (
 
 // Challenges repository interface
 type Challenges interface {
-	Add(*Challenge) error
+	Save(*Challenge) error
 	Find(ChallengeID) (*Challenge, error)
 	Current() (*Challenge, error)
 	All() ([]*Challenge, error)

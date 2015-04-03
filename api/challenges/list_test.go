@@ -28,7 +28,7 @@ func TestList(t *testing.T) {
 		Start:  time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
 		End:    time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
 	}
-	cs.Add(&c0)
+	cs.Save(&c0)
 
 	c1 := model.Challenge{
 		ID:     124,
@@ -37,7 +37,7 @@ func TestList(t *testing.T) {
 		Start:  time.Date(2015, 4, 1, 0, 0, 0, 0, time.UTC),
 		End:    time.Date(2015, 4, 14, 0, 0, 0, 0, time.UTC),
 	}
-	cs.Add(&c1)
+	cs.Save(&c1)
 
 	res, err := http.Get(ts.URL + "/v1/challenges")
 	defer res.Body.Close()

@@ -18,9 +18,12 @@ func NewChallenges(db *bolt.DB) (Challenges, error) {
 	return Challenges{db}, err
 }
 
-// Add another challenge to the repo
-func (cs *Challenges) Add(c *model.Challenge) error {
-	return cs.db.Update(store(bktChallenges, c.ID, c))
+// Save a challenge into the repo
+func (cs *Challenges) Save(c *model.Challenge) error {
+	return chain(cs.db.Update,
+		prefillChallenge(c),
+		store(bktChallenges, c.ID, c),
+	)
 }
 
 // Find a challenge in the repository by its id
@@ -70,5 +73,21 @@ func getChallenges(chals *[]*model.Challenge) boltf {
 			return nil
 		})
 		return err
+	}
+}
+
+// prefills challenge's ID with the next available unique value. If challenge
+// already has its ID set - does nothing.
+func prefillChallenge(c *model.Challenge) boltf {
+	return func(tx *bolt.Tx) error {
+		if c.ID != 0 {
+			return nil
+		}
+		var id model.ChallengeID
+		if err := lastKey(tx, bktChallenges, &id); err != nil {
+			return err
+		}
+		c.ID = id + 1
+		return nil
 	}
 }

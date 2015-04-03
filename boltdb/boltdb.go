@@ -131,12 +131,17 @@ func keytoV(b []byte, v interface{}) error {
 	return binary.Read(r, binary.BigEndian, v)
 }
 
-// find the maximum key value in the bucket
-func maxKey(tx *bolt.Tx, bkt []byte, id interface{}) error {
+// find the last key value in the bucket, saving it into the given
+// interface pointer. If the bucket is empty, no error is returned, and
+// the value is not changed
+func lastKey(tx *bolt.Tx, bkt []byte, id interface{}) error {
 	// Bolt stores its key in an ordered fashion, which means
 	// (as we store our keys as big-endian byte arrays, too)
 	// we can simply grab the latest key and use its value
 	bk := tx.Bucket(bkt)
 	k, _ := bk.Cursor().Last()
+	if k == nil {
+		return nil
+	}
 	return keytoV(k, id)
 }

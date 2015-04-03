@@ -16,7 +16,7 @@ func TestSubmissionMarshal(t *testing.T) {
 	c := &model.Challenge{
 		ID: 10,
 	}
-	cs.Add(c)
+	cs.Save(c)
 
 	s := model.Submission{
 		ID:        "1234-abcde",
