@@ -48,37 +48,15 @@ func (cs *Challenges) Current() (*model.Challenge, error) {
 	// the current challenge in the database. When retrieved,
 	// the challenge can be re-verified as current, and only
 	// if it is out of date - full re-scan be triggered
-	f := func(c *model.Challenge) bool {
-		return c.Current()
+	f := func(c interface{}) bool {
+		return c.(*model.Challenge).Current()
 	}
-	return &chal, cs.db.View(findChallenge(cs, &chal, f))
+	return &chal, cs.db.View(first(bktChallenges, f, &chal))
 }
 
 //
 // Low-level database operations
 //
-
-// find the first challenge that matches given finder function criteria
-func findChallenge(cs *Challenges, chal *model.Challenge,
-	f func(*model.Challenge) bool) boltf {
-	return func(tx *bolt.Tx) error {
-		var err error
-		bkc := tx.Bucket(bktChallenges).Cursor()
-
-		for k, v := bkc.First(); k != nil && err == nil; k, v = bkc.Next() {
-			if err = decode(&v, chal); err == nil && f(chal) {
-				// the matching challenge is found, stop here
-				return nil
-			}
-		}
-		// no matching challenge was found, if there're no errors either -
-		// return ErrNotFound
-		if err == nil {
-			err = model.ErrNotFound
-		}
-		return err
-	}
-}
 
 // get all challenges from the database
 func getChallenges(chals *[]*model.Challenge) boltf {

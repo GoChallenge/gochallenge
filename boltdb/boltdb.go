@@ -66,6 +66,28 @@ func load(bkt []byte, k string, u interface{}) boltf {
 	}
 }
 
+// iterates through all objects in the bucket, returning the first
+// one matching given predicate function
+func first(bkt []byte, f func(interface{}) bool, x interface{}) boltf {
+	return func(tx *bolt.Tx) error {
+		var err error
+		bk := tx.Bucket(bkt).Cursor()
+
+		for k, v := bk.First(); k != nil && err == nil; k, v = bk.Next() {
+			if err = decode(&v, x); err == nil && f(x) {
+				// the matching record is found, stop here
+				return nil
+			}
+		}
+		// no matching record was found, if there're no errors either -
+		// return ErrNotFound
+		if err == nil {
+			err = model.ErrNotFound
+		}
+		return err
+	}
+}
+
 // returns a value stored in the bucket under the given string key
 func atoBytes(bkt []byte, k string, b **[]byte) boltf {
 	return func(tx *bolt.Tx) error {
