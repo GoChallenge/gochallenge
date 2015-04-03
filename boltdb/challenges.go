@@ -1,8 +1,6 @@
 package boltdb
 
 import (
-	"strconv"
-
 	"github.com/boltdb/bolt"
 	"github.com/gochallenge/gochallenge/model"
 )
@@ -22,13 +20,13 @@ func NewChallenges(db *bolt.DB) (Challenges, error) {
 
 // Add another challenge to the repo
 func (cs *Challenges) Add(c *model.Challenge) error {
-	return cs.db.Update(store(bktChallenges, strconv.Itoa(c.ID), c))
+	return cs.db.Update(store(bktChallenges, c.ID, c))
 }
 
 // Find a challenge in the repository by its id
-func (cs *Challenges) Find(id int) (*model.Challenge, error) {
+func (cs *Challenges) Find(id model.ChallengeID) (*model.Challenge, error) {
 	var chal model.Challenge
-	return &chal, cs.db.View(load(bktChallenges, strconv.Itoa(id), &chal))
+	return &chal, cs.db.View(load(bktChallenges, id, &chal))
 }
 
 // All challenges currently available

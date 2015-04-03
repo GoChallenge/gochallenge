@@ -90,7 +90,7 @@ func setupUser(err error, us model.Users,
 	}
 
 	gu.Populate(u)
-	err = us.Add(u)
+	err = us.Save(u)
 
 	return u, err
 }

@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"strconv"
+	"time"
+)
 
 // Challenges repository interface
 type Challenges interface {

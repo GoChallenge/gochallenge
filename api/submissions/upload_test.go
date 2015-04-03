@@ -38,7 +38,7 @@ func TestPostMultipart(t *testing.T) {
 		ID:     1234,
 		APIKey: "c001c0ffee",
 	}
-	us.Add(&u0)
+	us.Save(&u0)
 
 	a := api.New(api.Config{
 		Challenges:  &cs,

@@ -1,8 +1,6 @@
 package boltdb
 
 import (
-	"strconv"
-
 	"github.com/boltdb/bolt"
 	"github.com/gochallenge/gochallenge/model"
 )
@@ -17,21 +15,22 @@ type Users struct {
 // NewUsers returns bolt-backed Users repo
 func NewUsers(db *bolt.DB) (Users, error) {
 	err := db.Update(initBucket(bktUsers))
-	return Users{db}, err
+	return Users{db: db}, err
 }
 
-// Add another user to the repo
-func (us *Users) Add(u *model.User) error {
+// Save a user into the repo. If this is a new user record, and it doesn't
+// have its ID specified yet - it will be set to the next available value
+func (us *Users) Save(u *model.User) error {
 	return chain(us.db.Update,
-		validateNewUser(u),
-		store(bktUsers, strconv.Itoa(u.ID), u),
+		prefillID(u),
+		store(bktUsers, &u.ID, u),
 	)
 }
 
 // Find returns a user record for the given ID
-func (us *Users) Find(id int) (*model.User, error) {
+func (us *Users) Find(id model.UserID) (*model.User, error) {
 	var u model.User
-	return &u, us.db.View(load(bktUsers, strconv.Itoa(id), &u))
+	return &u, us.db.View(load(bktUsers, id, &u))
 }
 
 // FindByGithubID returns a user record with the given Github ID
@@ -57,16 +56,18 @@ func (us *Users) findBy(f func(interface{}) bool) (*model.User, error) {
 	return &u, us.db.View(first(bktUsers, f, &u))
 }
 
-// validates given user record as a new record - e.g. making sure is does
-// not conflict with another existing record, etc
-func validateNewUser(u *model.User) boltf {
+// prefills user's ID with the next available unique value. If user already
+// has its ID set - does nothing.
+func prefillID(u *model.User) boltf {
 	return func(tx *bolt.Tx) error {
-		bkt := tx.Bucket(bktUsers)
-		k := strconv.Itoa(u.ID)
-
-		if bkt.Get([]byte(k)) != nil {
-			return model.ErrDuplicateRecord
+		if u.ID != 0 {
+			return nil
 		}
+		var id model.UserID
+		if err := maxKey(tx, bktUsers, &id); err != nil && err.Error() != "EOF" {
+			return err
+		}
+		u.ID = id + 1
 		return nil
 	}
 }

@@ -10,23 +10,20 @@ import (
 // MustBehaveLikeUsers tests behaviour of the given implementation
 // of users repo
 func MustBehaveLikeUsers(t *testing.T, us model.Users) {
+	// Create and save a user
 	u1 := model.User{
-		ID:       1,
 		Name:     "Jane Doe",
 		GithubID: 66235,
 		APIKey:   "deadc0ffee",
 	}
-	// first adding should succeed
-	err := us.Add(&u1)
-	require.NoError(t, err)
-	// but the second should fail with a duplicate record error
-	err = us.Add(&u1)
-	require.Equal(t, model.ErrDuplicateRecord, err,
-		"adding a duplicate record did not error")
+	err := us.Save(&u1)
+	require.NoError(t, err, "errored when saving a user")
+	// ID should be auto-generated, if not specified
+	require.NotEmpty(t, u1.ID, "User ID should be auto-generated")
 
 	// added user record should find-able by its ID
 	ux, err := us.Find(u1.ID)
-	require.NoError(t, err)
+	require.NoError(t, err, "errored when finding a user")
 	require.Equal(t, u1, *ux)
 	// but not if it's a wrong one
 	ux, err = us.Find(u1.ID * 100)
@@ -50,4 +47,15 @@ func MustBehaveLikeUsers(t *testing.T, us model.Users) {
 	// but, again, not if it's a wrong one
 	ux, err = us.FindByAPIKey("o_O")
 	require.Equal(t, model.ErrNotFound, err)
+
+	// the second user, when added, must receive a different ID
+	// Create and save a user
+	u2 := model.User{
+		Name: "Gordon Freeman",
+	}
+	err = us.Save(&u2)
+	require.NoError(t, err)
+	// ID should be auto-generated, if not specified
+	require.NotEmpty(t, u2.ID, "User ID should be auto-generated")
+	require.NotEqual(t, u1.ID, u2.ID)
 }

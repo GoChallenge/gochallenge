@@ -6,6 +6,7 @@ import "github.com/gochallenge/gochallenge/model"
 type Users struct {
 	index       map[model.UserID]*model.User
 	indexAPIKey map[string]*model.User
+	cnt         model.UserID
 }
 
 // NewUsers returns a new initialised users collection.
@@ -16,8 +17,13 @@ func NewUsers() Users {
 	}
 }
 
-// Add user to the mock users.
-func (us *Users) Add(u *model.User) error {
+// Save user to the mock users.
+func (us *Users) Save(u *model.User) error {
+	if u.ID == 0 {
+		us.cnt++
+		u.ID = us.cnt
+	}
+
 	if _, ok := us.index[u.ID]; ok {
 		return model.ErrDuplicateRecord
 	}

@@ -9,7 +9,7 @@ import (
 
 // Users collection interface
 type Users interface {
-	Add(*User) error
+	Save(*User) error
 	Find(UserID) (*User, error)
 	FindByGithubID(int) (*User, error)
 	FindByAPIKey(string) (*User, error)
