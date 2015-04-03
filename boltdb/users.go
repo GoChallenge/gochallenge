@@ -30,8 +30,8 @@ func (us *Users) Add(u *model.User) error {
 	)
 }
 
-// FindByID returns a user record for the given ID
-func (us *Users) FindByID(id int) (*model.User, error) {
+// Find returns a user record for the given ID
+func (us *Users) Find(id int) (*model.User, error) {
 	var (
 		b *[]byte
 		u model.User

@@ -36,7 +36,7 @@ func findUser(us model.Users, idstr string) (*model.User, error) {
 	if err != nil {
 		return nil, err
 	}
-	u, err = us.FindByID(id)
+	u, err = us.Find(id)
 	if err != nil {
 		return nil, err
 	}

@@ -27,8 +27,8 @@ func (us *Users) Add(u *model.User) error {
 	return nil
 }
 
-// FindByID searches for a user in the collection by its id.
-func (us *Users) FindByID(id int) (*model.User, error) {
+// Find searches for a user in the collection by its id.
+func (us *Users) Find(id int) (*model.User, error) {
 	var (
 		u  *model.User
 		ok bool

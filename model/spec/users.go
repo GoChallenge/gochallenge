@@ -25,11 +25,11 @@ func MustBehaveLikeUsers(t *testing.T, us model.Users) {
 		"adding a duplicate record did not error")
 
 	// added user record should find-able by its ID
-	ux, err := us.FindByID(u1.ID)
+	ux, err := us.Find(u1.ID)
 	require.NoError(t, err)
 	require.Equal(t, u1, *ux)
 	// but not if it's a wrong one
-	ux, err = us.FindByID(u1.ID * 100)
+	ux, err = us.Find(u1.ID * 100)
 	require.Equal(t, model.ErrNotFound, err)
 
 	// and by its Github ID
