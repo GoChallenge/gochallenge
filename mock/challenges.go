@@ -8,14 +8,14 @@ const CurrentID = 1
 
 // Challenges repository, mocked out as in-memory map
 type Challenges struct {
-	index map[int]*model.Challenge
+	index map[model.ChallengeID]*model.Challenge
 	ary   []*model.Challenge
 }
 
 // NewChallenges returns a new initialised struct of challenges
 func NewChallenges() Challenges {
 	return Challenges{
-		index: make(map[int]*model.Challenge),
+		index: make(map[model.ChallengeID]*model.Challenge),
 		ary:   make([]*model.Challenge, 0),
 	}
 }
@@ -28,7 +28,7 @@ func (cs *Challenges) Add(c *model.Challenge) error {
 }
 
 // Find a challenge in the repository by its id
-func (cs *Challenges) Find(id int) (*model.Challenge, error) {
+func (cs *Challenges) Find(id model.ChallengeID) (*model.Challenge, error) {
 	var (
 		c  *model.Challenge
 		ok bool

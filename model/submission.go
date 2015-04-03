@@ -18,7 +18,7 @@ type Submissions interface {
 type Submission struct {
 	ID          string        `json:"id"`
 	User        *User         `json:"user"`
-	ChallengeID int           `json:"challenge_id"`
+	ChallengeID ChallengeID   `json:"challenge_id"`
 	Type        Participation `json:"type"`
 	Challenge   *Challenge    `json:"-"`
 	Data        *[]byte       `json:"-"`

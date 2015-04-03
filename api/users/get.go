@@ -3,7 +3,6 @@ package users
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
@@ -27,12 +26,12 @@ func Get(us model.Users) httprouter.Handle {
 // find a user of a specified ID.
 func findUser(us model.Users, idstr string) (*model.User, error) {
 	var (
-		id  int
+		id  model.UserID
 		u   *model.User
 		err error
 	)
 
-	id, err = strconv.Atoi(idstr)
+	err = id.Atoid(idstr)
 	if err != nil {
 		return nil, err
 	}

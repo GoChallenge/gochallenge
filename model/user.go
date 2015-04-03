@@ -4,12 +4,13 @@ import (
 	"crypto/rand"
 	"crypto/sha1"
 	"fmt"
+	"strconv"
 )
 
 // Users collection interface
 type Users interface {
 	Add(*User) error
-	Find(int) (*User, error)
+	Find(UserID) (*User, error)
 	FindByGithubID(int) (*User, error)
 	FindByAPIKey(string) (*User, error)
 }
@@ -21,9 +22,23 @@ func NewUser() (*User, error) {
 	return u, err
 }
 
+// UserID type
+type UserID int32
+
+// Atoid convert string value into UserID
+func (uid *UserID) Atoid(s string) error {
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return err
+	}
+
+	*uid = UserID(n)
+	return nil
+}
+
 // User of a challenge
 type User struct {
-	ID          int    `json:"-"`
+	ID          UserID `json:"-"`
 	Name        string `json:"name"`
 	Email       string `json:"email,omitempty"`
 	AvatarURL   string `json:"avatar_url"`

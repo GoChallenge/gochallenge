@@ -25,7 +25,7 @@ func TestChallengeBoltRepo(t *testing.T) {
 	require.NoError(t, err)
 
 	cur := model.Challenge{
-		ID:    rand.Intn(100) + 1e3,
+		ID:    model.ChallengeID(rand.Intn(100) + 1e3),
 		Name:  "Currently Running Challenge",
 		Start: time.Now().Add(-24 * time.Hour),
 		End:   time.Now().Add(24 * time.Hour),

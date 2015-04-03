@@ -4,14 +4,14 @@ import "github.com/gochallenge/gochallenge/model"
 
 // Users represents users collection, mocked out as in-memory map
 type Users struct {
-	index       map[int]*model.User
+	index       map[model.UserID]*model.User
 	indexAPIKey map[string]*model.User
 }
 
 // NewUsers returns a new initialised users collection.
 func NewUsers() Users {
 	return Users{
-		index:       make(map[int]*model.User),
+		index:       make(map[model.UserID]*model.User),
 		indexAPIKey: make(map[string]*model.User),
 	}
 }
@@ -28,7 +28,7 @@ func (us *Users) Add(u *model.User) error {
 }
 
 // Find searches for a user in the collection by its id.
-func (us *Users) Find(id int) (*model.User, error) {
+func (us *Users) Find(id model.UserID) (*model.User, error) {
 	var (
 		u  *model.User
 		ok bool
