@@ -4,7 +4,7 @@ import "github.com/gochallenge/gochallenge/model"
 
 // CurrentID is an ID of a challenge that mock considers to be
 // the current one
-const CurrentID = 1
+const CurrentID = 100001
 
 // Challenges repository, mocked out as in-memory map
 type Challenges struct {

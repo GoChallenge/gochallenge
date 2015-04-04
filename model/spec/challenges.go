@@ -13,11 +13,8 @@ import (
 // repo, to make sure it conforms to the expected API
 func MustBehaveLikeChallenges(t *testing.T, cs model.Challenges,
 	cur *model.Challenge) {
-	const chalID = 123
-	const chalUnknownID = 1
 
 	c1 := model.Challenge{
-		ID:    chalID,
 		Name:  "The Test Challenge",
 		Start: time.Date(2011, 1, 1, 0, 0, 0, 0, time.UTC),
 		End:   time.Date(2012, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -70,5 +67,4 @@ func MustBehaveLikeChallenges(t *testing.T, cs model.Challenges,
 	require.NotEqual(t, c2.ID, 0, "new challenge must have received an ID")
 	require.NotEqual(t, c1.ID, c2.ID, "new ID must be diffent from c1.ID")
 	require.NotEqual(t, cur.ID, c2.ID, "new ID must be diffent from cur.ID")
-
 }

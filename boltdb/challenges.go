@@ -22,7 +22,7 @@ func NewChallenges(db *bolt.DB) (Challenges, error) {
 func (cs *Challenges) Save(c *model.Challenge) error {
 	return chain(cs.db.Update,
 		prefillChallenge(c),
-		store(bktChallenges, c.ID, c),
+		store(bktChallenges, &c.ID, c),
 	)
 }
 
