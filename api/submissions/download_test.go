@@ -15,21 +15,27 @@ import (
 
 func TestDownloadSubmission(t *testing.T) {
 	ss := mock.NewSubmissions()
+	us := mock.NewUsers()
 	a := api.New(api.Config{
 		Submissions: &ss,
+		Users:       &us,
 	})
 	ts := httptest.NewServer(a)
 
+	u0, err := model.NewUser()
+	require.NoError(t, err)
+	us.Save(u0)
+
 	d0 := []byte("badc0ffee")
-	s0 := model.Submission{
+	s0 := &model.Submission{
 		ID:   "0000-abcd",
 		Type: model.LvlNormal,
 		Data: &d0,
+		User: u0,
 	}
-	ss.Add(&s0)
+	ss.Add(s0)
 
-	path := fmt.Sprintf("/v1/submissions/%s/download", s0.ID)
-	res, err := http.Get(ts.URL + path)
+	res, err := get(ts, fmt.Sprintf("/submissions/%s/download", s0.ID), u0)
 	defer res.Body.Close()
 
 	require.NoError(t, err)
@@ -40,10 +46,30 @@ func TestDownloadSubmission(t *testing.T) {
 	b, err := ioutil.ReadAll(res.Body)
 	require.NoError(t, err)
 
-	require.Equal(t, string(*s0.Data), string(b))
+	require.Equal(t, string(d0), string(b))
 }
 
 func TestDownloadSubmissionMissing(t *testing.T) {
+	ss := mock.NewSubmissions()
+	us := mock.NewUsers()
+	a := api.New(api.Config{
+		Submissions: &ss,
+		Users:       &us,
+	})
+	ts := httptest.NewServer(a)
+
+	u0, err := model.NewUser()
+	require.NoError(t, err)
+	us.Save(u0)
+
+	res, err := get(ts, "/submissions/123/download", u0)
+	defer res.Body.Close()
+
+	require.NoError(t, err)
+	require.Equal(t, http.StatusNotFound, res.StatusCode)
+}
+
+func TestDownloadNoAuth(t *testing.T) {
 	ss := mock.NewSubmissions()
 	a := api.New(api.Config{
 		Submissions: &ss,
@@ -55,5 +81,5 @@ func TestDownloadSubmissionMissing(t *testing.T) {
 	defer res.Body.Close()
 
 	require.NoError(t, err)
-	require.Equal(t, http.StatusNotFound, res.StatusCode)
+	require.Equal(t, http.StatusUnauthorized, res.StatusCode)
 }

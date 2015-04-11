@@ -16,10 +16,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func getList(ts *httptest.Server, cid model.ChallengeID,
+func get(ts *httptest.Server, path string,
 	u *model.User) (*http.Response, error) {
-	path := fmt.Sprintf("/v1/challenges/%d/submissions", cid)
-	req, err := http.NewRequest("GET", ts.URL+path, nil)
+	req, err := http.NewRequest("GET", ts.URL+"/v1"+path, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +70,8 @@ func TestList(t *testing.T) {
 	}
 	ss.Add(&s1)
 
-	res, err := getList(ts, c0.ID, u0)
+	url := fmt.Sprintf("/challenges/%d/submissions", c0.ID)
+	res, err := get(ts, url, u0)
 	defer res.Body.Close()
 
 	require.NoError(t, err)
@@ -107,7 +107,8 @@ func TestListEmpty(t *testing.T) {
 	}
 	cs.Save(c0)
 
-	res, err := getList(ts, c0.ID, u0)
+	url := fmt.Sprintf("/challenges/%d/submissions", c0.ID)
+	res, err := get(ts, url, u0)
 	defer res.Body.Close()
 
 	require.NoError(t, err)
@@ -132,7 +133,7 @@ func TestListMissing(t *testing.T) {
 	require.NoError(t, err)
 	us.Save(u0)
 
-	res, err := getList(ts, 123, u0)
+	res, err := get(ts, "/challenges/123/submissions", u0)
 	defer res.Body.Close()
 
 	require.NoError(t, err)

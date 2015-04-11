@@ -14,6 +14,7 @@ const (
 	ErrAuthFailure
 	ErrNotImplemented
 	ErrDuplicateRecord
+	ErrAccessDenied
 )
 
 var errmsgs = map[Error]string{
@@ -24,6 +25,7 @@ var errmsgs = map[Error]string{
 	ErrAuthFailure:     "Invalid authentication",
 	ErrNotImplemented:  "Not implemented",
 	ErrDuplicateRecord: "Record already exists",
+	ErrAccessDenied:    "Access denied",
 }
 
 func (e Error) Error() string {
