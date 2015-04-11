@@ -18,6 +18,8 @@ func User(r *http.Request, us model.Users) (*model.User, error) {
 
 	u, err := us.FindByAPIKey(k)
 	if err == model.ErrNotFound {
+		// If user is not found here - it means the API key is wrong,
+		// so rewriting it back as auth failure error
 		err = model.ErrAuthFailure
 	}
 	return u, err

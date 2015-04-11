@@ -13,6 +13,7 @@ import (
 	"testing"
 
 	"github.com/gochallenge/gochallenge/api"
+	"github.com/gochallenge/gochallenge/api/auth"
 	"github.com/gochallenge/gochallenge/mock"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/stretchr/testify/require"
@@ -23,22 +24,21 @@ func TestPostMultipart(t *testing.T) {
 	cs := mock.NewChallenges()
 	us := mock.NewUsers()
 
-	c0 := model.Challenge{
+	c0 := &model.Challenge{
 		ID:     1,
 		Status: model.Open,
 	}
-	cs.Save(&c0)
+	cs.Save(c0)
 
-	s0 := model.Submission{
+	// Creating a pre-existing submission, to make sure
+	// an ID for the new one will be assigned correctly
+	ss.Add(&model.Submission{
 		ID: "1",
-	}
-	ss.Add(&s0)
+	})
 
-	u0 := model.User{
-		ID:     1234,
-		APIKey: "c001c0ffee",
-	}
-	us.Save(&u0)
+	u0, err := model.NewUser()
+	require.NoError(t, err)
+	us.Save(u0)
 
 	a := api.New(api.Config{
 		Challenges:  &cs,
@@ -65,7 +65,7 @@ dC50eHRVVAUAA0rpBFV1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEAAQBOAAAARwAAAAAA
 --%[1]s--
 `, bnd)
 	buf := strings.NewReader(data)
-	res, err := requestAsUser(t, &u0, ts.URL+path, bnd, buf)
+	res, err := postAsUser(t, u0.APIKey, ts.URL+path, bnd, buf)
 	defer res.Body.Close()
 
 	require.NoError(t, err)
@@ -83,6 +83,8 @@ dC50eHRVVAUAA0rpBFV1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEAAQBOAAAARwAAAAAA
 	testSubmissionData(t, sl, map[string]string{
 		"test.txt": "test\x0a",
 	})
+	require.Equal(t, u0, sl.User)
+	require.Equal(t, c0, sl.Challenge)
 }
 
 func testSubmissionData(t *testing.T, sx *model.Submission, ex map[string]string) {
@@ -109,14 +111,20 @@ func testSubmissionData(t *testing.T, sx *model.Submission, ex map[string]string
 
 func TestPostToWrongChallenge(t *testing.T) {
 	cs := mock.NewChallenges()
+	us := mock.NewUsers()
 	a := api.New(api.Config{
 		Challenges: &cs,
+		Users:      &us,
 	})
 	ts := httptest.NewServer(a)
 
+	u0, err := model.NewUser()
+	require.NoError(t, err)
+	us.Save(u0)
+
 	path := fmt.Sprintf("/v1/challenges/%d/submissions", 123)
 	buf := strings.NewReader("somedata")
-	res, err := http.Post(ts.URL+path, "multipart/related; boundary=xxx", buf)
+	res, err := postAsUser(t, u0.APIKey, ts.URL+path, "xxx", buf)
 	defer res.Body.Close()
 
 	require.NoError(t, err)
@@ -125,11 +133,11 @@ func TestPostToWrongChallenge(t *testing.T) {
 
 func TestPostWithInvalidKey(t *testing.T) {
 	cs := mock.NewChallenges()
-	c0 := model.Challenge{
+	c0 := &model.Challenge{
 		ID:     1,
 		Status: model.Open,
 	}
-	cs.Save(&c0)
+	cs.Save(c0)
 	us := mock.NewUsers()
 	a := api.New(api.Config{
 		Challenges: &cs,
@@ -139,20 +147,20 @@ func TestPostWithInvalidKey(t *testing.T) {
 
 	path := fmt.Sprintf("/v1/challenges/%d/submissions", c0.ID)
 	buf := strings.NewReader("somedata")
-	res, err := http.Post(ts.URL+path, "multipart/related; boundary=xxx", buf)
+	res, err := postAsUser(t, "deadbeef", ts.URL+path, "xxx", buf)
 	defer res.Body.Close()
 
 	require.NoError(t, err)
 	require.Equal(t, http.StatusUnauthorized, res.StatusCode)
 }
 
-func requestAsUser(t *testing.T, u *model.User, uri string, bnd string,
+func postAsUser(t *testing.T, ukey string, uri string, bnd string,
 	body io.Reader) (*http.Response, error) {
 
 	r, err := http.NewRequest("POST", uri, body)
 	require.NoError(t, err)
 	r.Header.Set("Content-Type", "multipart/related; boundary="+bnd)
-	r.Header.Set("Auth-ApiKey", u.APIKey)
+	r.Header.Set(auth.HTTPHeader, ukey)
 
 	client := &http.Client{}
 	return client.Do(r)

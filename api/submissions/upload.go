@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gochallenge/gochallenge/api/auth"
 	"github.com/gochallenge/gochallenge/api/write"
 	"github.com/gochallenge/gochallenge/model"
 	"github.com/julienschmidt/httprouter"
@@ -21,17 +22,12 @@ import (
 func Post(cs model.Challenges, ss model.Submissions, us model.Users) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request,
 		ps httprouter.Params) {
-		var (
-			s   model.Submission
-			u   *model.User
-			err error
-		)
+		var s model.Submission
 
-		s.Challenge, err = findChallenge(nil, cs, ps.ByName("id"))
-		u, err = verifyUser(err, r, us)
+		u, err := auth.User(r, us)
+		s.Challenge, err = findChallenge(err, cs, ps.ByName("id"))
 		err = readSubmission(err, &s, r)
 		err = storeSubmission(err, ss, &s, u)
-
 		err = writeSubmission(err, w, s)
 
 		write.Error(w, r, err)
@@ -51,20 +47,6 @@ func findChallenge(err error, cs model.Challenges,
 		return nil, err
 	}
 	return cs.Find(cid)
-}
-
-func verifyUser(err error, r *http.Request, us model.Users) (*model.User, error) {
-	if err != nil {
-		return nil, err
-	}
-
-	u, err := us.FindByAPIKey(r.Header.Get("Auth-ApiKey"))
-	if err == model.ErrNotFound {
-		// If user is not found here - it means the API key is wrong,
-		// so rewriting it back as auth failure error
-		err = model.ErrAuthFailure
-	}
-	return u, err
 }
 
 func readSubmission(err error, s *model.Submission, r *http.Request) error {
