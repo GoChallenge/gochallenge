@@ -12,7 +12,7 @@ func seedChallenges(cs model.Challenges) {
 		URL:    "http://golang-challenge.com/go-challenge1/",
 		Import: "gc.falsum.me/code/challenge-001",
 		Git:    "https://github.com/morhekil/gc-1-drum_machine.git",
-		Status: model.Open,
+		Status: model.Closed,
 		Author: model.Author{Name: "Matt Aimonetti"},
 		Start:  time.Date(2015, 3, 1, 0, 0, 0, 0, time.UTC),
 		End:    time.Date(2015, 3, 14, 0, 0, 0, 0, time.UTC),
