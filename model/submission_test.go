@@ -13,21 +13,28 @@ import (
 
 func TestSubmissionMarshal(t *testing.T) {
 	cs := mock.NewChallenges()
+	us := mock.NewUsers()
 	c := &model.Challenge{
 		ID: 10,
 	}
 	cs.Save(c)
+	u := &model.User{
+		ID:   5,
+		Name: "Jane Doe",
+	}
+	us.Save(u)
 
 	s := model.Submission{
 		ID:        "1234-abcde",
 		Type:      model.LvlAnonymous,
 		Challenge: c,
+		User:      u,
 		Created:   time.Date(2015, 3, 1, 10, 0, 0, 0, time.UTC),
 	}
 	js := strings.Replace(`
 {
 "id":"1234-abcde",
-"user":null,
+"user_id":5,
 "challenge_id":10,
 "type":"anonymous",
 "created":"2015-03-01T10:00:00Z"
@@ -39,9 +46,7 @@ func TestSubmissionMarshal(t *testing.T) {
 	require.Equal(t, js, string(b), "Submission JSON is incorrect")
 
 	sx := model.Submission{}
-	err = json.Unmarshal(b, &sx)
-	sx.Hydrate(&cs)
-	s.ChallengeID = c.ID
+	err = sx.Unmarshal(b, &cs, &us)
 
 	require.NoError(t, err, "Submission JSON unmarshalling failed")
 	require.Equal(t, s, sx, "Submission JSON unmarshalled incorrectly")

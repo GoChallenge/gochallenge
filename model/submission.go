@@ -16,35 +16,63 @@ type Submissions interface {
 // Submission type describes details of a submitted solutions for a
 // challenge
 type Submission struct {
+	ID        string        `json:"id"`
+	User      *User         `json:"user"`
+	Type      Participation `json:"type"`
+	Challenge *Challenge    `json:"-"`
+	Data      *[]byte       `json:"-"`
+	Created   time.Time     `json:"created"`
+}
+
+// unexported type to use as a basis for JSON representation
+// of a submission, mostly to replace associated objects
+// with their IDs
+type submissionEx struct {
 	ID          string        `json:"id"`
-	User        *User         `json:"user"`
+	UserID      UserID        `json:"user_id"`
 	ChallengeID ChallengeID   `json:"challenge_id"`
 	Type        Participation `json:"type"`
-	Challenge   *Challenge    `json:"-"`
-	Data        *[]byte       `json:"-"`
 	Created     time.Time     `json:"created"`
 }
 
-// type aliases to aid in custom marshalling of Submission structs
-type submissionExport Submission
-type submissionImport Submission
-
-// MarshalJSON exports submission data, populating dynamic
-// fields
+// MarshalJSON exports submission data, substituting associations
+// with their IDs
 func (s Submission) MarshalJSON() ([]byte, error) {
-	if s.Challenge != nil {
-		s.ChallengeID = s.Challenge.ID
+	se := &submissionEx{
+		ID:      s.ID,
+		Type:    s.Type,
+		Created: s.Created,
 	}
-	return json.Marshal(submissionExport(s))
+	if s.Challenge != nil {
+		se.ChallengeID = s.Challenge.ID
+	}
+	if s.User != nil {
+		se.UserID = s.User.ID
+	}
+
+	return json.Marshal(se)
 }
 
-// Hydrate submission model, mapping numeric IDs (e.g. ChallengeID)
-// to their full objects
-func (s *Submission) Hydrate(cs Challenges) error {
-	c, err := cs.Find(s.ChallengeID)
-	if err != nil {
+// Unmarshal imports submission data, hydrating associated objects
+// based on their ID values received
+func (s *Submission) Unmarshal(b []byte, cs Challenges, us Users) error {
+	var err error
+
+	var se submissionEx
+	if err = json.Unmarshal(b, &se); err != nil {
 		return err
 	}
-	s.Challenge = c
-	return nil
+
+	s.ID = se.ID
+	s.Type = se.Type
+	s.Created = se.Created
+
+	if se.ChallengeID != 0 {
+		s.Challenge, err = cs.Find(se.ChallengeID)
+	}
+	if err == nil && se.UserID != 0 {
+		s.User, err = us.Find(se.UserID)
+	}
+
+	return err
 }

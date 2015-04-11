@@ -16,8 +16,6 @@ import (
 )
 
 func TestList(t *testing.T) {
-	t.SkipNow()
-
 	cs := mock.NewChallenges()
 	ss := mock.NewSubmissions()
 	a := api.New(api.Config{
@@ -59,11 +57,10 @@ func TestList(t *testing.T) {
 	b, err := ioutil.ReadAll(res.Body)
 	require.NoError(t, err, "GET /v1/.../submissions should read the body")
 
-	var sx []model.Submission
-	err = json.Unmarshal(b, &sx)
-	require.NoError(t, err, "GET /v1/.../submissions unmarshaling failed")
-	require.Equal(t, []model.Submission{s0, s1}, sx,
-		"GET /v1/.../submissions unmarshalled incorrectly")
+	b0, _ := json.Marshal(s0)
+	b1, _ := json.Marshal(s1)
+	require.Equal(t, fmt.Sprintf("[%s,%s]\n", string(b0), string(b1)),
+		string(b))
 }
 
 func TestListEmpty(t *testing.T) {
