@@ -30,7 +30,7 @@ func server(cfg Config) *httprouter.Router {
 	r.GET("/v1/challenges", challenges.List(cfg.Challenges))
 	r.GET("/v1/challenges/:id", challenges.Get(cfg.Challenges))
 	r.GET("/v1/challenges/:id/submissions",
-		submissions.List(cfg.Challenges, cfg.Submissions))
+		submissions.List(cfg.Challenges, cfg.Submissions, cfg.Users))
 	r.GET("/v1/submissions/:id/download", submissions.Download(cfg.Submissions))
 	r.POST("/v1/challenges/:id/submissions",
 		submissions.Post(cfg.Challenges, cfg.Submissions, cfg.Users))

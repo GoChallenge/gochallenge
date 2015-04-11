@@ -37,7 +37,6 @@ func Get(cs model.Challenges) httprouter.Handle {
 // find a challenge given the value if requested ID string
 func findChallenge(cs model.Challenges, id string) (*model.Challenge, error) {
 	var cid model.ChallengeID
-
 	idx := strings.Replace(id, "challenge-", "", 1)
 
 	if idx == "current" {

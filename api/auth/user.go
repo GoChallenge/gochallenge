@@ -6,9 +6,12 @@ import (
 	"github.com/gochallenge/gochallenge/model"
 )
 
+// HTTPHeader containing API key for the request
+const HTTPHeader = "Auth-ApiKey"
+
 // User that is authenticated in the given request
 func User(r *http.Request, us model.Users) (*model.User, error) {
-	k := r.Header.Get("Auth-ApiKey")
+	k := r.Header.Get(HTTPHeader)
 	if k == "" {
 		return nil, model.ErrAuthFailure
 	}
